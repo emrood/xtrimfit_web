@@ -17,7 +17,7 @@ if (!isset($_SESSION['user'])) {
     die();
 }
 
-$_SESSION['active'] = 'pricing';
+$_SESSION['active'] = 'list-pricing';
 
 ?>
 <!doctype html>
@@ -55,50 +55,50 @@ include("parts/head.php");
                                     <thead>
                                     <tr>
                                         <th class="text-center" scope="col"></th>
-                                        <th class="text-center" scope="col">Starter</th>
-                                        <th class="text-center" scope="col">Business</th>
-                                        <th class="text-center" scope="col">Enterprise</th>
-                                        <th class="text-center" scope="col">Unlimited</th>
+                                        <th class="text-center" scope="col">Session</th>
+                                        <th class="text-center" scope="col">Standard</th>
+                                        <th class="text-center" scope="col">Silver</th>
+                                        <th class="text-center" scope="col">Gold</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <tr>
-                                        <th class="text-center" scope="row">Email support</th>
+                                        <th class="text-center" scope="row">Info #1</th>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                     </tr>
                                     <tr>
-                                        <th class="text-center" scope="row">UI Kit</th>
+                                        <th class="text-center" scope="row">Info #1</th>
                                         <td class="text-center"></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                     </tr>
                                     <tr>
-                                        <th class="text-center" scope="row">100% support</th>
+                                        <th class="text-center" scope="row">Info #1</th>
                                         <td class="text-center"></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                     </tr>
                                     <tr>
-                                        <th class="text-center" scope="row">Advance form</th>
+                                        <th class="text-center" scope="row">Info #1</th>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                     </tr>
                                     <tr>
-                                        <th class="text-center" scope="row">Custom shortcode</th>
+                                        <th class="text-center" scope="row">Info #1</th>
                                         <td class="text-center"></td>
                                         <td class="text-center"></td>
                                         <td class="text-center"></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
                                     </tr>
                                     <tr>
-                                        <th class="text-center" scope="row">Thousand of Widgets</th>
+                                        <th class="text-center" scope="row">Info #1</th>
                                         <td class="text-center"></td>
                                         <td class="text-center"></td>
                                         <td class="text-center"><i class="ri-check-line ri-2x text-success"></i></td>
@@ -107,20 +107,20 @@ include("parts/head.php");
                                     <tr>
                                         <td class="text-center"></td>
                                         <td class="text-center">
-                                            <h2>$5000<small> / Per month</small></h2>
-                                            <button type="button" class="btn btn-primary mt-3">Purchase</button>
+                                            <h2>$5<small></small></h2>
+<!--                                            <button type="button" class="btn btn-primary mt-3">Purchase</button>-->
                                         </td>
                                         <td class="text-center">
-                                            <h2>$39<small> / Per month</small></h2>
-                                            <button type="button" class="btn btn-primary mt-3">Purchase</button>
+                                            <h2>$60<small> / Per month</small></h2>
+<!--                                            <button type="button" class="btn btn-primary mt-3">Purchase</button>-->
                                         </td>
                                         <td class="text-center">
-                                            <h2>$119<small> / Per month</small></h2>
-                                            <button type="button" class="btn btn-primary mt-3">Purchase</button>
+                                            <h2>$75<small> / Per month</small></h2>
+<!--                                            <button type="button" class="btn btn-primary mt-3">Purchase</button>-->
                                         </td>
                                         <td class="text-center">
-                                            <h2>$219<small> / Per month</small></h2>
-                                            <button type="button" class="btn btn-primary mt-3">Purchase</button>
+                                            <h2>$100<small> / Per month</small></h2>
+<!--                                            <button type="button" class="btn btn-primary mt-3">Purchase</button>-->
                                         </td>
                                     </tr>
                                     </tbody>
