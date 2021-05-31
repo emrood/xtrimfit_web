@@ -1,9 +1,10 @@
-
 <?php
 
 
-require_once('../db/User.php');
-require_once('../db/Database.php');
+require_once('db/User.php');
+require_once('db/Customer.php');
+require_once('db/Pricing.php');
+require_once('db/Database.php');
 
 //use Database;
 //use User;
@@ -16,38 +17,41 @@ if (!isset($_SESSION['user'])) {
     die();
 }
 
-$user_check = $_SESSION['user_id'];
 
-//$ses_sql = mysqli_query($db, "select username from admin where username = '$user_check' ");
-$ses_sql = User::getById($user_check);
+$_SESSION['active'] = 'list-customer';
+
+$text = null;
+$limit = 20;
+$offset = 0;
+
+if (isset($_GET['query']) && !empty($_GET['query'])) {
+    $text = $_GET['query'];
+}
+
+//var_dump($text)
+
+$count = (int)Customer::count()['qty'];
+
+$pages = (int)ceil($count / 20);
 
 
-$user = mysqli_fetch_array($ses_sql, MYSQLI_ASSOC);
+$customers = Customer::getCustomers($limit, $offset, $text);
 
-$login_session = $user['name'];
-//var_dump($row);
+//$pricings = Pricing::getPricings();
+
+//foreach ($customers as $customer){
+//    var_dump($customer);
+//}
+//
 //die();
 
 
 ?>
 <!doctype html>
 <html lang="en">
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Vito - Responsive Bootstrap 4 Admin Dashboard Template</title>
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="../images/favicon.ico" />
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="../css/bootstrap.min.css">
-    <!-- Typography CSS -->
-    <link rel="stylesheet" href="../css/typography.css">
-    <!-- Style CSS -->
-    <link rel="stylesheet" href="../css/style.css">
-    <!-- Responsive CSS -->
-    <link rel="stylesheet" href="../css/responsive.css">
-</head>
+<?php
+include("parts/head.php");
+?>
 <body>
 <!-- loader Start -->
 <div id="loading">
@@ -59,15 +63,18 @@ $login_session = $user['name'];
 <div class="wrapper">
     <!-- Sidebar  -->
     <?php
-    include("../parts/side_bar.php");
+    include("parts/side_bar.php");
     ?>
     <!-- TOP Nav Bar -->
     <?php
-    include("../parts/top_nav_bar.php");
+    include("parts/top_nav_bar.php");
     ?>
     <!-- TOP Nav Bar END -->
     <!-- Page Content  -->
     <div id="content-page" class="content-page">
+        <?php
+        include("parts/alert.php");
+        ?>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-sm-12">
@@ -82,16 +89,18 @@ $login_session = $user['name'];
                                 <div class="row justify-content-between">
                                     <div class="col-sm-12 col-md-6">
                                         <div id="user_list_datatable_info" class="dataTables_filter">
-                                            <form class="mr-3 position-relative">
+                                            <form class="mr-3 position-relative" action="" method="get">
                                                 <div class="form-group mb-0">
-                                                    <input type="search" class="form-control" id="exampleInputSearch" placeholder="Search" aria-controls="user-list-table">
+                                                    <input type="search" name="query" class="form-control"
+                                                           id="exampleInputSearch" placeholder="Search"
+                                                           aria-controls="user-list-table">
                                                 </div>
                                             </form>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-6">
                                         <div class="user-list-files d-flex float-right">
-                                            <a class="iq-bg-primary" href="javascript:void();" >
+                                            <a class="iq-bg-primary" href="javascript:void();">
                                                 Print
                                             </a>
                                             <a class="iq-bg-primary" href="javascript:void();">
@@ -103,197 +112,101 @@ $login_session = $user['name'];
                                         </div>
                                     </div>
                                 </div>
-                                <table id="user-list-table" class="table table-striped table-bordered mt-4" role="grid" aria-describedby="user-list-page-info">
+                                <table id="user-list-table" class="table table-striped table-bordered mt-4" role="grid"
+                                       aria-describedby="user-list-page-info">
                                     <thead>
                                     <tr>
                                         <th>Profile</th>
-                                        <th>Name</th>
+                                        <th>Nom</th>
                                         <th>Contact</th>
                                         <th>Email</th>
-                                        <th>Country</th>
+                                        <th>Plan</th>
                                         <th>Status</th>
-                                        <th>Company</th>
-                                        <th>Join Date</th>
+                                        <th>Date d'inscription</th>
                                         <th>Action</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
-                                        <td class="text-center"><img class="rounded-circle img-fluid avatar-40" src="images/user/01.jpg" alt="profile"></td>
-                                        <td>Anna Sthesia</td>
-                                        <td>(760) 756 7568</td>
-                                        <td>annasthesia@gmail.com</td>
-                                        <td>USA</td>
-                                        <td><span class="badge iq-bg-primary">Active</span></td>
-                                        <td>Acme Corporation</td>
-                                        <td>2019/12/01</td>
-                                        <td>
-                                            <div class="flex align-items-center list-user-action">
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add" href="#"><i class="ri-user-add-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="#"><i class="ri-pencil-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" href="#"><i class="ri-delete-bin-line"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><img class="rounded-circle img-fluid avatar-40" src="images/user/02.jpg" alt="profile"></td>
-                                        <td>Brock Lee</td>
-                                        <td>+62 5689 458 658</td>
-                                        <td>brocklee@gmail.com</td>
-                                        <td>Indonesia</td>
-                                        <td><span class="badge iq-bg-primary">Active</span></td>
-                                        <td>Soylent Corp</td>
-                                        <td>2019/12/01</td>
-                                        <td>
-                                            <div class="flex align-items-center list-user-action">
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add" href="#"><i class="ri-user-add-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="#"><i class="ri-pencil-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" href="#"><i class="ri-delete-bin-line"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><img class="rounded-circle img-fluid avatar-40" src="images/user/03.jpg" alt="profile"></td>
-                                        <td>Dan Druff</td>
-                                        <td>+55 6523 456 856</td>
-                                        <td>dandruff@gmail.com</td>
-                                        <td>Brazil</td>
-                                        <td><span class="badge iq-bg-warning">Pending</span></td>
-                                        <td>Umbrella Corporation</td>
-                                        <td>2019/12/01</td>
-                                        <td>
-                                            <div class="flex align-items-center list-user-action">
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add" href="#"><i class="ri-user-add-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="#"><i class="ri-pencil-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" href="#"><i class="ri-delete-bin-line"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><img class="rounded-circle img-fluid avatar-40" src="images/user/04.jpg" alt="profile"></td>
-                                        <td>Hans Olo</td>
-                                        <td>+91 2586 253 125</td>
-                                        <td>hansolo@gmail.com</td>
-                                        <td>India</td>
-                                        <td><span class="badge iq-bg-danger">Inactive</span></td>
-                                        <td>Vehement Capital</td>
-                                        <td>2019/12/01</td>
-                                        <td>
-                                            <div class="flex align-items-center list-user-action">
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add" href="#"><i class="ri-user-add-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="#"><i class="ri-pencil-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" href="#"><i class="ri-delete-bin-line"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><img class="rounded-circle img-fluid avatar-40" src="images/user/05.jpg" alt="profile"></td>
-                                        <td>Lynn Guini</td>
-                                        <td>+27 2563 456 589</td>
-                                        <td>lynnguini@gmail.com</td>
-                                        <td>Africa</td>
-                                        <td><span class="badge iq-bg-primary">Active</span></td>
-                                        <td>Massive Dynamic</td>
-                                        <td>2019/12/01</td>
-                                        <td>
-                                            <div class="flex align-items-center list-user-action">
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add" href="#"><i class="ri-user-add-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="#"><i class="ri-pencil-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" href="#"><i class="ri-delete-bin-line"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><img class="rounded-circle img-fluid avatar-40" src="images/user/06.jpg" alt="profile"></td>
-                                        <td>Eric Shun</td>
-                                        <td>+55 25685 256 589</td>
-                                        <td>ericshun@gmail.com</td>
-                                        <td>Brazil</td>
-                                        <td><span class="badge iq-bg-warning">Pending</span></td>
-                                        <td>Globex Corporation</td>
-                                        <td>2019/12/01</td>
-                                        <td>
-                                            <div class="flex align-items-center list-user-action">
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add" href="#"><i class="ri-user-add-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="#"><i class="ri-pencil-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" href="#"><i class="ri-delete-bin-line"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><img class="rounded-circle img-fluid avatar-40" src="images/user/07.jpg" alt="profile"></td>
-                                        <td>aaronottix</td>
-                                        <td>(760) 765 2658</td>
-                                        <td>budwiser@ymail.com</td>
-                                        <td>USA</td>
-                                        <td><span class="badge iq-bg-info">Hold</span></td>
-                                        <td>Acme Corporation</td>
-                                        <td>2019/12/01</td>
-                                        <td>
-                                            <div class="flex align-items-center list-user-action">
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add" href="#"><i class="ri-user-add-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="#"><i class="ri-pencil-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" href="#"><i class="ri-delete-bin-line"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><img class="rounded-circle img-fluid avatar-40" src="images/user/08.jpg" alt="profile"></td>
-                                        <td>Marge Arita</td>
-                                        <td>+27 5625 456 589</td>
-                                        <td>margearita@gmail.com</td>
-                                        <td>Africa</td>
-                                        <td><span class="badge iq-bg-success">Complite</span></td>
-                                        <td>Vehement Capital</td>
-                                        <td>2019/12/01</td>
-                                        <td>
-                                            <div class="flex align-items-center list-user-action">
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add" href="#"><i class="ri-user-add-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="#"><i class="ri-pencil-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" href="#"><i class="ri-delete-bin-line"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-center"><img class="rounded-circle img-fluid avatar-40" src="images/user/09.jpg" alt="profile"></td>
-                                        <td>Bill Dabear</td>
-                                        <td>+55 2563 456 589</td>
-                                        <td>billdabear@gmail.com</td>
-                                        <td>Brazil</td>
-                                        <td><span class="badge iq-bg-primary">active</span></td>
-                                        <td>Massive Dynamic</td>
-                                        <td>2019/12/01</td>
-                                        <td>
-                                            <div class="flex align-items-center list-user-action">
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Add" href="#"><i class="ri-user-add-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="#"><i class="ri-pencil-line"></i></a>
-                                                <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Delete" href="#"><i class="ri-delete-bin-line"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    <?php foreach ($customers as $customer): ?>
+                                        <?php if ((int)$customer['id'] !== 1): ?>
+                                            <tr>
+                                                <td class="text-center">
+                                                    <a class="text-lg-center" style="font-weight: bold !important; "
+                                                       href="view-customer.php?customer_id=<?= $customer['id'] ?>">
+                                                        <?php if (isset($customer['picture']) && !empty($customer['picture'])): ?>
+                                                            <img class="rounded-circle img-fluid avatar-40"
+                                                                 src="/images/customers/<?= $customer['picture'] ?>"
+                                                                 alt="profile">
+                                                        <?php else: ?>
+                                                            <img class="rounded-circle img-fluid avatar-40"
+                                                                 src="images/user/1.jpg" alt="profile">
+                                                        <?php endif; ?>
+                                                    </a>
+                                                </td>
+                                                <td><a class="text-lg-center" style="font-weight: bold !important; "
+                                                       href="view-customer.php?customer_id=<?= $customer['id'] ?>"><?= $customer['last_name'] . ' ' . $customer['first_name'] ?></a>
+                                                </td>
+                                                <td><?= $customer['phone'] ?></td>
+                                                <td><?= $customer['email'] ?></td>
+                                                <td><?= Pricing::getById($customer['pricing_id'])['name'] ?></td>
+                                                <?php if ((int)$customer['active'] === 1): ?>
+                                                    <td><span class="badge iq-bg-success">Active</span></td>
+                                                <?php else: ?>
+                                                    <td><span class="badge iq-bg-danger">Inactive</span></td>
+                                                <?php endif; ?>
+                                                <td><?= date('d/m/Y', strtotime($customer['created_at'])) ?></td>
+                                                <td>
+                                                    <div class="flex align-items-center list-user-action">
+                                                        <?php if ((int)$customer['active'] === 1): ?>
+                                                            <a class="iq-bg-primary" data-toggle="tooltip"
+                                                               data-placement="top" title=""
+                                                               data-original-title="Désactiver"
+                                                               href="/customers/disable-customer.php?customer_id=<?= $customer['id'] ?>"><i
+                                                                        class="ri-arrow-down-line"></i></a>
+                                                        <?php else: ?>
+                                                            <a class="iq-bg-primary" data-toggle="tooltip"
+                                                               data-placement="top" title=""
+                                                               data-original-title="Activer"
+                                                               href="/customers/enable-customer.php?customer_id=<?= $customer['id'] ?>"><i
+                                                                        class="ri-arrow-up-line"></i></a>
+                                                        <?php endif; ?>
+                                                        <a class="iq-bg-primary" data-toggle="tooltip"
+                                                           data-placement="top" title="" data-original-title="Edit"
+                                                           href="/add-customer.php?customer_id=<?= $customer['id'] ?>"><i
+                                                                    class="ri-pencil-line"></i></a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="row justify-content-between mt-3">
-                                <div id="user-list-page-info" class="col-md-6">
-                                    <span>Showing 1 to 5 of 5 entries</span>
+
+                            <?php if ($pages > 1): ?>
+                                <div class="row justify-content-between mt-3">
+                                    <div id="user-list-page-info" class="col-md-6">
+                                        <span>Showing 1 to <?= $limit ?> of <?= $count ?> entries</span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <nav aria-label="Page navigation example">
+                                            <ul class="pagination justify-content-end mb-0">
+                                                <li class="page-item disabled">
+                                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+                                                </li>
+                                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="#">Suivant</a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <nav aria-label="Page navigation example">
-                                        <ul class="pagination justify-content-end mb-0">
-                                            <li class="page-item disabled">
-                                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                                            </li>
-                                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                            <li class="page-item">
-                                                <a class="page-link" href="#">Next</a>
-                                            </li>
-                                        </ul>
-                                    </nav>
-                                </div>
-                            </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -304,40 +217,41 @@ $login_session = $user['name'];
 <!-- Wrapper END -->
 <!-- Footer -->
 <?php
-include("../parts/footer.php");
+include("parts/footer.php");
 ?>
 <!-- Footer END -->
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="../js/jquery.min.js"></script>
-<script src="../js/popper.min.js"></script>
-<script src="../js/bootstrap.min.js"></script>
+<script src="js/jquery.min.js"></script>
+<script src="js/popper.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
 <!-- Appear JavaScript -->
-<script src="../js/jquery.appear.js"></script>
+<script src="js/jquery.appear.js"></script>
 <!-- Countdown JavaScript -->
-<script src="../js/countdown.min.js"></script>
+<script src="js/countdown.min.js"></script>
 <!-- Counterup JavaScript -->
-<script src="../js/waypoints.min.js"></script>
-<script src="../js/jquery.counterup.min.js"></script>
+<script src="js/waypoints.min.js"></script>
+<script src="js/jquery.counterup.min.js"></script>
 <!-- Wow JavaScript -->
-<script src="../js/wow.min.js"></script>
+<script src="js/wow.min.js"></script>
 <!-- Apexcharts JavaScript -->
-<script src="../js/apexcharts.js"></script>
+<script src="js/apexcharts.js"></script>
 <!-- Slick JavaScript -->
-<script src="../js/slick.min.js"></script>
+<script src="js/slick.min.js"></script>
 <!-- Select2 JavaScript -->
-<script src="../js/select2.min.js"></script>
+<script src="js/select2.min.js"></script>
 <!-- Owl Carousel JavaScript -->
-<script src="../js/owl.carousel.min.js"></script>
+<script src="js/owl.carousel.min.js"></script>
 <!-- Magnific Popup JavaScript -->
-<script src="../js/jquery.magnific-popup.min.js"></script>
+<script src="js/jquery.magnific-popup.min.js"></script>
 <!-- Smooth Scrollbar JavaScript -->
-<script src="../js/smooth-scrollbar.js"></script>
+<script src="js/smooth-scrollbar.js"></script>
 <!-- lottie JavaScript -->
-<script src="../js/lottie.js"></script>
+<script src="js/lottie.js"></script>
 <!-- Chart Custom JavaScript -->
-<script src="../js/chart-custom.js"></script>
+<script src="js/chart-custom.js"></script>
 <!-- Custom JavaScript -->
-<script src="../js/custom.js"></script>
+<script src="js/custom.js"></script>
+<script src="js/alert.js"></script>
 </body>
 </html>
