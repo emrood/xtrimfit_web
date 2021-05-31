@@ -29,9 +29,9 @@ if (isset($_GET['invoice_id']) && !empty($_GET['invoice_id'])) {
 
     $pricings = Pricing::getPricings();
 
-    if($_GET['invoice_id'] === 'new'){
-        $invoice = json_decode(json_encode(new Invoice(0, Invoice::invoice_num(1, 7, 'XS1-'), 1, 1, $pricings[0]['price'], 0, 0, 0, $pricings[0]['price'], 'Paid', date('Y-m-d'),  date('Y-m-d'), date('Y-m-d'), '', date('Y-m-d H:i:s'))), true);
-    }else{
+    if ($_GET['invoice_id'] === 'new') {
+        $invoice = json_decode(json_encode(new Invoice(0, Invoice::invoice_num(1, 7, 'XS1-'), 1, 1, $pricings[0]['price'], 0, 0, 0, $pricings[0]['price'], 'Paid', date('Y-m-d'), date('Y-m-d'), date('Y-m-d'), '', date('Y-m-d H:i:s'))), true);
+    } else {
         $invoice = Invoice::getById($_GET['invoice_id']);
     }
 
@@ -91,19 +91,25 @@ include("parts/head.php");
                             </div>
                             <div class="iq-header-title">
                                 <h4 class="card-title">Facture #<?= $invoice['invoice_number'] ?></h4>
-                                <?php if($_SESSION['user']['role'] === 'Administrateur' && $invoice['id'] > 0):?>
+                                <?php if ($_SESSION['user']['role'] === 'Administrateur' && $invoice['id'] > 0): ?>
                                     <br/>
-                                    <a  href="delete-invoice.php?invoice_id=<?= $invoice['id'] ?>" class="btn btn-primary pull-right"><i class="ri-delete-bin-line"></i> Supprimer</a>
-                                <?php endif;?>
+                                    <a href="delete-invoice.php?invoice_id=<?= $invoice['id'] ?>"
+                                       class="btn btn-primary pull-right"><i class="ri-delete-bin-line"></i>
+                                        Supprimer</a>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <div class="iq-card-body">
                             <p></p>
                             <form action="invoice/save-invoice.php" method="post">
-                                <input type="hidden" name="customer_id" class="form-control" id="exampleInputText1" value="<?= $invoice['customer_id'] ?>">
-                                <input type="hidden" name="id" class="form-control" id="exampleInputText1" value="<?= $invoice['id'] ?>">
-                                <input type="hidden" name="invoice_number" class="form-control" id="exampleInputText1" value="<?= $invoice['invoice_number'] ?>">
-                                <input type="hidden" name="created_at" class="form-control" id="exampleInputText1" value="<?= $invoice['created_at'] ?>">
+                                <input type="hidden" name="customer_id" class="form-control" id="exampleInputText1"
+                                       value="<?= $invoice['customer_id'] ?>">
+                                <input type="hidden" name="id" class="form-control" id="exampleInputText1"
+                                       value="<?= $invoice['id'] ?>">
+                                <input type="hidden" name="invoice_number" class="form-control" id="exampleInputText1"
+                                       value="<?= $invoice['invoice_number'] ?>">
+                                <input type="hidden" name="created_at" class="form-control" id="exampleInputText1"
+                                       value="<?= $invoice['created_at'] ?>">
                                 <input type="hidden" name="updated_at" class="form-control" id="exampleInputText1"
                                        value="<?= date('Y-m-d') ?>">
                                 <input type="hidden" name="paid_date" class="form-control" id="exampleInputText1"
@@ -120,11 +126,13 @@ include("parts/head.php");
                                         <?php foreach ($pricings as $pricing): ?>
                                             <?php if ((int)$customer['id'] !== 1): ?>
                                                 <?php if ((int)$pricing['id'] !== 1): ?>
-                                                    <option <?= ($pricing['id'] === $invoice['pricing_id']) ? 'selected="selected"' : '' ?> value="<?= $pricing['id'] ?>"><?= $pricing['name'] . ' / $' . number_format($pricing['price'], 2, '.', ',') ?></option>
+                                                    <option <?= ($pricing['id'] === $invoice['pricing_id']) ? 'selected="selected"' : '' ?>
+                                                            value="<?= $pricing['id'] ?>"><?= $pricing['name'] . ' / $' . number_format($pricing['price'], 2, '.', ',') ?></option>
                                                 <?php endif; ?>
                                             <?php else: ?>
                                                 <?php if ((int)$pricing['id'] === 1): ?>
-                                                    <option <?= ($pricing['id'] === $invoice['pricing_id']) ? 'selected="selected"' : '' ?> value="<?= $pricing['id'] ?>"><?= $pricing['name'] . ' / $' . number_format($pricing['price'], 2, '.', ',') ?></option>
+                                                    <option <?= ($pricing['id'] === $invoice['pricing_id']) ? 'selected="selected"' : '' ?>
+                                                            value="<?= $pricing['id'] ?>"><?= $pricing['name'] . ' / $' . number_format($pricing['price'], 2, '.', ',') ?></option>
                                                 <?php endif; ?>
                                             <?php endif; ?>
                                         <?php endforeach; ?>
@@ -134,12 +142,16 @@ include("parts/head.php");
                                 <div class="form-row">
                                     <div class="col">
                                         <label for="exampleInputText1">Du</label>
-                                        <input type="date" name="from_date" <?= ((int) $invoice['customer_id'] === 1) ? 'disabled' : '' ?> class="form-control" id="exampleInputdate"
+                                        <input type="date"
+                                               name="from_date" <?= ((int)$invoice['customer_id'] === 1) ? 'disabled' : '' ?>
+                                               class="form-control" id="exampleInputdate"
                                                value="<?= $invoice['from_date'] ?>">
                                     </div>
                                     <div class="col">
                                         <label for="exampleInputText1">Au</label>
-                                        <input type="date" name="to_date" <?= ((int) $invoice['customer_id'] === 1) ? 'disabled' : '' ?> class="form-control" id="exampleInputdate"
+                                        <input type="date"
+                                               name="to_date" <?= ((int)$invoice['customer_id'] === 1) ? 'disabled' : '' ?>
+                                               class="form-control" id="exampleInputdate"
                                                value="<?= $invoice['to_date'] ?>">
                                     </div>
                                 </div>
@@ -150,7 +162,8 @@ include("parts/head.php");
                                     <div class="col">
                                         <label for="exampleInputText1">Prix de base (USD)</label>
                                         <input type="number" name="price" value="<?= $invoice['price'] ?>"
-                                               class="form-control" <?= ((int) $invoice['customer_id'] === 1) ? 'disabled' : '' ?> placeholder="0.00">
+                                               class="form-control" <?= ((int)$invoice['customer_id'] === 1) ? 'disabled' : '' ?>
+                                               placeholder="0.00">
                                     </div>
                                     <div class="col">
                                         <label for="exampleInputText1">Taxe (%)</label>
@@ -179,7 +192,8 @@ include("parts/head.php");
 
                                 <div class="form-group">
                                     <label>Status</label>
-                                    <select name="status" <?= ((int) $invoice['customer_id'] === 1) ? 'disabled' : '' ?> class="form-control mb-3">
+                                    <select name="status" <?= ((int)$invoice['customer_id'] === 1) ? 'disabled' : '' ?>
+                                            class="form-control mb-3">
                                         <?php foreach (Constants::getInvoiceStatus() as $status): ?>
                                             <option <?= ($status === $invoice['status']) ? 'selected="selected"' : '' ?>
                                                     value="<?= $status ?>"><?= $status ?></option>
@@ -196,21 +210,28 @@ include("parts/head.php");
                                 <div class="form-group">
                                     <label for="exampleInputEmail3">Commentaire</label>
                                     <input type="text" name="comment" class="form-control"
-                                           value="<?= $invoice['comment'] ?>" id="exampleInputEmail3" placeholder="Cheque #...">
+                                           value="<?= $invoice['comment'] ?>" id="exampleInputEmail3"
+                                           placeholder="Cheque #...">
                                 </div>
 
                                 <br/>
                                 <hr/>
-                                <?php if($invoice['status'] === 'Paid'):?>
+                                <?php if ($invoice['status'] === 'Paid'): ?>
 
-                                        <img src="images/paid_stamp.png" class="img-fluid w-25" alt="" style="position: relative; left: 60%;" >
+                                    <div class="alert alert-primary col-md-2 text-center pull-right" role="alert">
+                                        <div class="iq-alert-text"><a href="#" class="alert-link">Payée le <?= date('d/m/Y', strtotime($invoice['paid_date'])) ?></a>.
+                                        </div>
+                                    </div>
+
+                                    <img src="images/paid_stamp.png" class="img-fluid w-25" alt=""
+                                         style="position: relative; left: 55%;">
 
                                     <br/>
-                                <?php endif;?>
+                                <?php endif; ?>
 
-                                <?php if($invoice['status'] !== 'Paid' || (int) $invoice['id'] === 0):?>
+                                <?php if ($invoice['status'] !== 'Paid' || (int)$invoice['id'] === 0): ?>
                                     <button type="submit" class="btn btn-primary">Enregistrer</button>
-                                <?php endif;?>
+                                <?php endif; ?>
                                 <a href="list-invoice.php" class="btn iq-bg-secondary">Annuler</a>
                                 <a href="#" onclick="PrintElem()" class="btn iq-bg-danger pull-right"><i
                                             class="ri-printer-line"></i>Imprimer</a>
@@ -291,27 +312,27 @@ include("parts/head.php");
         return true;
     }
 
-    $(function() {
+    $(function () {
         // console.log( "ready!" );
 
-        $('input[name="price"]').change(function() {
+        $('input[name="price"]').change(function () {
             updateTotal();
         });
 
-        $('input[name="fees"]').change(function() {
+        $('input[name="fees"]').change(function () {
             updateTotal();
         });
 
-        $('input[name="taxe_percentage"]').change(function() {
+        $('input[name="taxe_percentage"]').change(function () {
             updateTotal();
         });
 
-        $('input[name="discount_percentage"]').change(function() {
+        $('input[name="discount_percentage"]').change(function () {
             updateTotal();
         });
 
-        $(window).keydown(function(event){
-            if(event.keyCode === 13) {
+        $(window).keydown(function (event) {
+            if (event.keyCode === 13) {
                 event.preventDefault();
                 return false;
             }
@@ -320,8 +341,7 @@ include("parts/head.php");
     });
 
 
-    
-     function updateTotal() {
+    function updateTotal() {
 
         var base_price = parseFloat($('input[name="price"]').val());
         var fees = parseFloat($('input[name="fees"]').val());
@@ -332,15 +352,15 @@ include("parts/head.php");
 
         var total = base_price + fees;
 
-        if(discount > 0){
+        if (discount > 0) {
             total = total - (total * discount / 100);
         }
 
-         if(taxe > 0){
-             total = total + (total * taxe / 100);
-         }
+        if (taxe > 0) {
+            total = total + (total * taxe / 100);
+        }
 
-         $('input[name="total"]').val(total);
+        $('input[name="total"]').val(total);
     }
 </script>
 </body>
