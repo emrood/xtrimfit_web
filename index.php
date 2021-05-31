@@ -12,7 +12,7 @@ require_once('db/Customer.php');
 
 session_start();
 
-if (!isset($_SESSION['user'])) {
+if (!isset($_SESSION['user']) || !isset($_SESSION['user_id'])) {
     header("location:login.php");
     die();
 }
