@@ -233,11 +233,11 @@ class Invoice implements \JsonSerializable
 
         if ($from_date !== null) {
             if ($period === 'month') {
-                $data = $database->executeQuery("SELECT SUM(`total`) as total FROM invoices WHERE MONTH(from_date) = MONTH('?') AND status = '?'", array($from_date, 'Paid'));
+                $data = $database->executeQuery("SELECT SUM(`total`) as total FROM invoices WHERE MONTH(paid_date) = MONTH('?') AND status = '?'", array($from_date, 'Paid'));
             } elseif ($period == 'interval') {
-                $data = $database->executeQuery("SELECT SUM(`total`) as total FROM invoices WHERE DATE(from_date) >= DATE('?') AND DATE(from_date) <= DATE('?')  AND status = '?'", array($from_date . ' 00:00:00', $to_date . '23:59:59', 'Paid'));
+                $data = $database->executeQuery("SELECT SUM(`total`) as total FROM invoices WHERE DATE(paid_date) >= DATE('?') AND DATE(from_date) <= DATE('?')  AND status = '?'", array($from_date . ' 00:00:00', $to_date . '23:59:59', 'Paid'));
             } else {
-                $data = $database->executeQuery("SELECT SUM(`total`) as total FROM invoices WHERE DATE(from_date) = DATE('?') AND status = '?'", array($from_date, 'Paid'));
+                $data = $database->executeQuery("SELECT SUM(`total`) as total FROM invoices WHERE DATE(paid_date) = DATE('?') AND status = '?'", array($from_date, 'Paid'));
             }
         } else {
             $data = $database->executeQuery("SELECT SUM(`total`) as total FROM invoices WHERE status = '?'", array('Paid'));
