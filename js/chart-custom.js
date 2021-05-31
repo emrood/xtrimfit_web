@@ -8908,10 +8908,10 @@ if(jQuery('#menu-chart-01').length){
      }
 
      
-     if(jQuery('#user-chart').length){
+     if(jQuery('#users-chart').length){
         am4core.ready(function() {
         am4core.useTheme(am4themes_animated);
-        var chart = am4core.create("user-chart", am4charts.XYChart);
+        var chart = am4core.create("users-chart", am4charts.XYChart);
          chart.colors.list = [am4core.color("#827af3")];
         chart.data = [{
           "date": "2012-03-01",
