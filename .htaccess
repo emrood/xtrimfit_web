@@ -1,0 +1,44 @@
+# Define error-pages
+  ErrorDocument 401 /error.php
+  ErrorDocument 403 /error.php
+  ErrorDocument 404 /error.php
+  ErrorDocument 500 /error.php
+  ErrorDocument 502 /error.php
+  ErrorDocument 504 /error.php
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews
+    </IfModule>
+
+    RewriteEngine On
+
+
+
+    #RewriteRule (.*) /index.php/$1 [L]
+    RewriteCond %{REQUEST_URI}::$1 ^(.*?/)(.*)::\2$
+    RewriteRule ^(.*) - [E=BASE:%1]
+
+
+    # Add slash if there is no at the end
+    RewriteCond %{REQUEST_URI} !(/$|\.)
+    RewriteRule (.*) %{REQUEST_URI}/ [R=301,L]
+
+    # Remove double slashes in all URLs
+    RewriteCond %{THE_REQUEST} ^[A-Z]+\ /(([^/\ ]+/)*)/+([^\ ]*)
+    RewriteRule ^ /%1%3 [L,R=301]
+
+    # If the requested filename exists, simply serve it.
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule .? - [L]
+
+    #remove .php
+    RewriteCond %{REQUEST_FILENAME}.php -f
+    RewriteRule !.*\.php$ %{REQUEST_FILENAME}.php [QSA,L]
+
+    #remove .html
+    RewriteCond %{REQUEST_FILENAME}.html -f
+    RewriteRule !.*\.html$ %{REQUEST_FILENAME}.html [L]
+    RewriteRule ^([^/]+)/$ $1.php
+    RewriteRule ^([^/]+)/([^/]+)/$ /$1/$2.php
+
+</IfModule>
