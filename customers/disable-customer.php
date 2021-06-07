@@ -9,7 +9,7 @@
 require_once('../db/Customer.php');
 
 $message = 'Compte client mis a jour !';
-$error = false;
+$error = 1;
 if (isset($_GET['customer_id'])) {
     Customer::update($_GET['customer_id'], 'active', '0');
 }

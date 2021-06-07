@@ -23,23 +23,35 @@ $_SESSION['active'] = 'list-invoice';
 $text = null;
 $limit = 40;
 $offset = 0;
+$from = null;
+$to = null;
 
 if (isset($_GET['query']) && !empty($_GET['query'])) {
     $text = $_GET['query'];
 }
 
-//var_dump($text)
+
+if (isset($_GET['from_date'])) {
+    $from = $_GET['from_date'];
+}
+
+if (isset($_GET['to_date'])) {
+    $to = $_GET['to_date'];
+}
+
+
+//var_dump($from);
+//die();
 
 $count = (int)Invoice::count()['qty'];
 
 $pages = (int)ceil($count / 40);
 
-
-$invoices = Invoice::getInvoices($limit, $offset, $text);
+$invoices = Invoice::filter($text, $limit, $offset, $from, $to);
 
 $totals = [];
 
-if($_SESSION['user']['role'] === 'Administrateur'){
+if ($_SESSION['user']['role'] === 'Administrateur') {
     $totals['unpaid'] = Invoice::getTotalUnpaid()['total'];
     $totals['pending'] = Invoice::getTotalPending()['total'];
 }
@@ -91,17 +103,21 @@ include("parts/head.php");
                             </div>
 
                             <?php if ($_SESSION['user']['role'] === 'Administrateur'): ?>
-                            <div class="pull-right" style="font-size: 1em !important;">
-                                <button type="button" style="font-size: 1.2em !important;" class="btn mb-1 btn-outline-primary">
-                                    A recevoir <span class="badge badge-primary ml-2"><?= '$ '.number_format($totals['pending'], 2, '.', ',') ?></span>
-                                </button>
+                                <div class="pull-right" style="font-size: 1em !important;">
+                                    <button type="button" style="font-size: 1.2em !important;"
+                                            class="btn mb-1 btn-outline-primary">
+                                        A recevoir <span
+                                                class="badge badge-primary ml-2"><?= '$ ' . number_format($totals['pending'], 2, '.', ',') ?></span>
+                                    </button>
 
-                                <button type="button" style="font-size: 1.2em !important;" class="btn mb-1 btn-outline-danger">
-                                    Impayés <span class="badge badge-danger ml-2"><?= '$ '.number_format($totals['unpaid'], 2, '.', ',') ?></span>
-                                </button>
-                            </div>
+                                    <button type="button" style="font-size: 1.2em !important;"
+                                            class="btn mb-1 btn-outline-danger">
+                                        Impayés <span
+                                                class="badge badge-danger ml-2"><?= '$ ' . number_format($totals['unpaid'], 2, '.', ',') ?></span>
+                                    </button>
+                                </div>
                             <?php endif; ?>
-                            <a href="view-invoice.php?invoice_id=new" class="btn btn-primary">Nouvelle session</a>
+                            <a href="view-invoice.php?invoice_id=new" class="btn btn-primary">Nouvelle seance</a>
                         </div>
                         <div class="iq-card-body">
                             <div class="table-responsive">
@@ -147,7 +163,9 @@ include("parts/head.php");
                                     <?php foreach ($invoices as $invoice): ?>
                                         <tr>
 
-                                            <td><a style="font-weight: bold !important; " href="view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><?= $invoice['invoice_number'] ?></a></td>
+                                            <td><a style="font-weight: bold !important; "
+                                                   href="view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><?= $invoice['invoice_number'] ?></a>
+                                            </td>
                                             <td>
                                                 <?php
                                                 $customer = Customer::getById($invoice['customer_id']);
@@ -169,13 +187,15 @@ include("parts/head.php");
 
                                             <td>
                                                 <div class="flex align-items-center list-user-action">
-                                                    <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top"
-                                                       title="" data-original-title="Edit"
-                                                       href="/print-invoice.php?invoice_id=<?= $invoice['id'] ?>"><i
-                                                                class="ri-eye-line"></i></a>
-                                                    <?php if ($_SESSION['user']['role'] === 'Administrateur'): ?>
-                                                        <a class="iq-bg-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="/view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><i class="ri-pencil-line"></i></a>
-                                                    <?php endif; ?>
+                                                    <a class="iq-bg-info" data-toggle="tooltip" data-placement="top"
+                                                       title="" data-original-title="Imprimer"
+                                                       href="#"><i class="ri-printer-line"></i></a>
+
+                                                        <a class="iq-bg-primary" data-toggle="tooltip"
+                                                           data-placement="top" title="" data-original-title="Edit"
+                                                           href="/view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><i
+                                                                    class="ri-pencil-line"></i></a>
+
                                                 </div>
                                             </td>
                                         </tr>
@@ -254,5 +274,6 @@ include("parts/footer.php");
 <!-- Custom JavaScript -->
 <script src="js/custom.js"></script>
 <script src="js/alert.js"></script>
+<script src="js/filter.js"></script>
 </body>
 </html>

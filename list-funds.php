@@ -4,7 +4,9 @@
 require_once('db/User.php');
 require_once('db/Customer.php');
 require_once('db/Invoice.php');
+require_once('db/CashFund.php');
 require_once('db/Database.php');
+require_once('db/Rate.php');
 
 //use Database;
 //use User;
@@ -18,10 +20,10 @@ if (!isset($_SESSION['user'])) {
 }
 
 
-$_SESSION['active'] = 'list-invoice';
+$_SESSION['active'] = 'list-funds';
 
 $text = null;
-$limit = 40;
+$limit = 200;
 $offset = 0;
 $from = null;
 $to = null;
@@ -39,21 +41,20 @@ if (isset($_GET['to_date'])) {
     $to = $_GET['to_date'];
 }
 
+$rates = Rate::getRates();
 
 //var_dump($from);
 //die();
 
 $count = (int)Invoice::count()['qty'];
 
-$pages = (int)ceil($count / 40);
+$pages = (int)ceil($count / 200);
 
-$invoices = Invoice::filter($text, $limit, $offset, $from, $to);
+//$invoices = Invoice::filter($text, $limit, $offset, $from, $to);
 
-$totals = [];
 
 if ($_SESSION['user']['role'] === 'Administrateur') {
-    $totals['unpaid'] = Invoice::getTotalUnpaid()['total'];
-    $totals['pending'] = Invoice::getTotalPending()['total'];
+
 }
 
 
@@ -99,137 +100,197 @@ include("parts/head.php");
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
-                                <h4 class="card-title">Liste des factures</h4>
+                                <h4 class="card-title">Gestion de caisse | <a href="#" data-toggle="tooltip" data-placement="top" title=""  data-original-title="Exporter sur excel"><i class="ri-file-excel-2-line"></i></a> </h4>
                             </div>
 
-                            <?php if ($_SESSION['user']['role'] === 'Administrateur'): ?>
-                                <div class="pull-right" style="font-size: 1em !important;">
-                                    <button type="button" style="font-size: 1.2em !important;"
-                                            class="btn mb-1 btn-outline-primary">
-                                        A recevoir <span
-                                                class="badge badge-primary ml-2"><?= '$ ' . number_format($totals['pending'], 2, '.', ',') ?></span>
-                                    </button>
+                            <!--                                <div class="pull-right" style="font-size: 1em !important;">-->
+                            <!--                                    <button type="button" style="font-size: 1.2em !important;"-->
+                            <!--                                            class="btn mb-1 btn-outline-primary">-->
+                            <!--                                        A recevoir <span-->
+                            <!--                                                class="badge badge-primary ml-2">-->
+                            <? //= '$ ' . number_format(0, 2, '.', ',') ?><!--</span>-->
+                            <!--                                    </button>-->
+                            <!---->
+                            <!--                                    <button type="button" style="font-size: 1.2em !important;"-->
+                            <!--                                            class="btn mb-1 btn-outline-danger">-->
+                            <!--                                        Impayés <span-->
+                            <!--                                                class="badge badge-danger ml-2">-->
+                            <? //= '$ ' . number_format(0, 2, '.', ',') ?><!--</span>-->
+                            <!--                                    </button>-->
+                            <!--                                </div>-->
 
-                                    <button type="button" style="font-size: 1.2em !important;"
-                                            class="btn mb-1 btn-outline-danger">
-                                        Impayés <span
-                                                class="badge badge-danger ml-2"><?= '$ ' . number_format($totals['unpaid'], 2, '.', ',') ?></span>
-                                    </button>
-                                </div>
-                            <?php endif; ?>
-                            <a href="view-invoice.php?invoice_id=new" class="btn btn-primary">Nouvelle seance</a>
+                            <div>
+                                <?php if ($_SESSION['user']['role'] === 'Administrateur'): ?>
+                                    <a href="#" class="btn btn-success" data-toggle="modal" data-target="#modal_deposit"
+                                       style="font-weight: bold"><i class="ri-add-circle-line"></i>Depot</a>
+                                <?php endif ?>
+                                <a href="#" class="btn btn-danger" data-toggle="modal" data-target="#modal_withdrawal"
+                                   style="font-weight: bold"><i class="">- </i>Retrait</a>
+                            </div>
                         </div>
                         <div class="iq-card-body">
-                            <div class="table-responsive">
-                                <div class="row justify-content-between">
-                                    <div class="col-sm-12 col-md-6">
-                                        <div id="user_list_datatable_info" class="dataTables_filter">
-                                            <form class="mr-3 position-relative" action="" method="get">
-                                                <div class="form-group mb-0">
-                                                    <input type="search" name="query" class="form-control"
-                                                           id="exampleInputSearch" placeholder="Search"
-                                                           aria-controls="user-list-table">
-                                                </div>
-                                            </form>
+                            <ul class="nav nav-pills mb-3 col-md-4" style="margin: auto;" id="pills-tab" role="tablist">
+                                <?php foreach ($rates as $rate): ?>
+                                    <li class="nav-item">
+                                        <a class="nav-link <?= ((int)$rate['id'] === 1) ? 'active' : '' ?>"
+                                           id="pills-<?= $rate['name'] ?>-tab" data-toggle="pill"
+                                           href="#pills-<?= $rate['name'] ?>" role="tab"
+                                           aria-controls="pills-<?= $rate['name'] ?>"
+                                           aria-selected="true"><?= $rate['name'] ?></a>
+                                    </li>
+                                <?php endforeach; ?>
+
+                            </ul>
+                            <div class="tab-content" id="pills-tabContent-2">
+                                <?php foreach ($rates as $rate): ?>
+                                    <div class="tab-pane fade show <?= ((int)$rate['id'] === 1) ? 'active' : '' ?>"
+                                         id="pills-<?= $rate['name'] ?>" role="tabpanel"
+                                         aria-labelledby="pills-<?= $rate['name'] ?>-tab">
+
+                                        <?php $transactions = CashFund::filter($text, $rate['id'], $limit, $offset, $from, $to); ?>
+                                        <div>
+                                            <table class="table">
+                                                <thead>
+                                                <tr>
+                                                    <th class="text-left" scope="col" width="30%">Description</th>
+                                                    <th class="text-center" scope="col" width="20%">Date</th>
+                                                    <th class="text-center" scope="col" width="15%">Credit</th>
+                                                    <th class="text-center" scope="col" width="15%">Debit</th>
+                                                    <th class="text-right" scope="col" width="20%">Balance</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                <?php foreach ($transactions as $transaction): ?>
+                                                    <tr>
+                                                        <th class="text-left"
+                                                            scope="row"><?= $transaction['comment'] ?></th>
+                                                        <td class="text-center"><?= date('d/m/Y g:i A', strtotime($transaction['created_at'])) ?></td>
+                                                        <td class="text-center"><?= ($transaction['type'] === 'Depot') ? number_format((double)$transaction['amount'], 2, '.', ',') : '-' ?></td>
+                                                        <td class="text-center"><?= ($transaction['type'] === 'Retrait') ? number_format((double)$transaction['amount'], 2, '.', ',') : '-' ?></td>
+                                                        <td class="text-right"
+                                                            style="font-weight: bold"><?= number_format($transaction['balance'], 2, '.', ',') . ' ' . $rate['name'] ?></td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                                </tbody>
+                                            </table>
+
                                         </div>
+
                                     </div>
-                                    <div class="col-sm-12 col-md-6">
-                                        <div class="user-list-files d-flex float-right">
-                                            <a class="iq-bg-primary" href="javascript:void();">
-                                                Print
-                                            </a>
-                                            <a class="iq-bg-primary" href="javascript:void();">
-                                                Excel
-                                            </a>
-                                            <a class="iq-bg-primary" href="javascript:void();">
-                                                Pdf
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <table id="user-list-table" class="table table-striped table-bordered mt-4" role="grid"
-                                       aria-describedby="user-list-page-info">
-                                    <thead>
-                                    <tr>
-                                        <th>Numero</th>
-                                        <th>Client</th>
-                                        <th>Période</th>
-                                        <th>Montant</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <?php foreach ($invoices as $invoice): ?>
-                                        <tr>
+                                <?php endforeach; ?>
 
-                                            <td><a style="font-weight: bold !important; "
-                                                   href="view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><?= $invoice['invoice_number'] ?></a>
-                                            </td>
-                                            <td>
-                                                <?php
-                                                $customer = Customer::getById($invoice['customer_id']);
-                                                ?>
-                                                <?= $customer['last_name'] . ' ' . $customer['first_name'] ?>
-                                            </td>
-                                            <td><?= date('d/m/Y', strtotime($invoice['from_date'])) . ' au ' . date('d/m/Y', strtotime($invoice['to_date'])) ?></td>
-                                            <td><?= '$' . number_format($invoice['total'], 2, '.', ',') ?></td>
-                                            <?php if ($invoice['status'] === 'Paid'): ?>
-                                                <td><span class="badge iq-bg-success"><?= $invoice['status'] ?></span>
-                                                </td>
-                                            <?php elseif ($invoice['status'] === 'Pending'): ?>
-                                                <td><span class="badge iq-bg-warning"><?= $invoice['status'] ?></span>
-                                                </td>
-                                            <?php else: ?>
-                                                <td><span class="badge iq-bg-danger"><?= $invoice['status'] ?></span>
-                                                </td>
-                                            <?php endif; ?>
-
-                                            <td>
-                                                <div class="flex align-items-center list-user-action">
-                                                    <a class="iq-bg-info" data-toggle="tooltip" data-placement="top"
-                                                       title="" data-original-title="Edit"
-                                                       href="#"><i class="ri-printer-line"></i></a>
-                                                    <?php if ($_SESSION['user']['role'] === 'Administrateur'): ?>
-                                                        <a class="iq-bg-primary" data-toggle="tooltip"
-                                                           data-placement="top" title="" data-original-title="Edit"
-                                                           href="/view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><i
-                                                                    class="ri-pencil-line"></i></a>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </td>
-                                        </tr>
-
-                                    <?php endforeach; ?>
-
-                                    </tbody>
-                                </table>
                             </div>
-
-                            <?php if ($pages > 1): ?>
-                                <div class="row justify-content-between mt-3">
-                                    <div id="user-list-page-info" class="col-md-6">
-                                        <span>Showing 1 to <?= $limit ?> of <?= $count ?> entries</span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <nav aria-label="Page navigation example">
-                                            <ul class="pagination justify-content-end mb-0">
-                                                <li class="page-item disabled">
-                                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
-                                                </li>
-                                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                                <li class="page-item">
-                                                    <a class="page-link" href="#">Suivant</a>
-                                                </li>
-                                            </ul>
-                                        </nav>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
                         </div>
                     </div>
+                </div>
+            </div>
+
+
+            <?php if ($_SESSION['user']['role'] === 'Administrateur'): ?>
+                <!-- Modal deposit -->
+                <div class="modal fade" id="modal_deposit" tabindex="-1" role="dialog"
+                     aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <form action="cashfunds/save-cashfund.php" method="post">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalCenterTitle">Enregistrer un dépôt</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+
+                                    <input type="hidden" name="created_at" value="<?= date('Y-m-d H:i:s') ?>">
+                                    <input type="hidden" name="updated_at" value="<?= date('Y-m-d H:i:s') ?>">
+                                    <input type="hidden" name="id" value="0">
+                                    <input type="hidden" name="type" value="Depot">
+                                    <input type="hidden" name="action" value="save_deposit">
+                                    <div class="row form-group" style="margin-left: 8px; margin-right: 8px;">
+                                        <input type="text" required class="form-control" name="comment"
+                                               placeholder="Description">
+                                    </div>
+                                    <br/>
+                                    <hr/>
+                                    <br/>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="number" required step="0.01" class="form-control" name="amount"
+                                                   placeholder="Montant">
+                                        </div>
+                                        <div class="col">
+                                            <select class="form-control" name="rate_id" id="exampleFormControlSelect1">
+                                                <?php foreach ($rates as $rate): ?>
+                                                    <option value="<?= $rate['id'] ?>"><?= $rate['name'] ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                                    <button type="submit" onclick="this.form.submit();" class="btn btn-primary">
+                                        Enregistrer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <?php endif ?>
+
+
+            <!-- Modal withdrawal -->
+            <div class="modal fade" id="modal_withdrawal" tabindex="-1" role="dialog"
+                 aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <form action="cashfunds/save-cashfund.php" method="post">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalCenterTitle">Enregistrer une sortie de fond
+                                (retrait)</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+
+                                <input type="hidden" name="created_at" value="<?= date('Y-m-d H:i:s') ?>">
+                                <input type="hidden" name="updated_at" value="<?= date('Y-m-d H:i:s') ?>">
+                                <input type="hidden" name="id" value="0">
+                                <input type="hidden" name="type" value="Retrait">
+                                <input type="hidden" name="action" value="save_withdrawal">
+                                <div class="row form-group" style="margin-left: 8px; margin-right: 8px;">
+                                    <input type="text" required class="form-control" name="comment"
+                                           placeholder="Description">
+                                </div>
+                                <br/>
+                                <hr/>
+                                <br/>
+                                <div class="row">
+                                    <div class="col">
+                                        <input type="number" required step="0.01" class="form-control" name="amount"
+                                               placeholder="Montant">
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control" name="rate_id" id="exampleFormControlSelect1">
+                                            <?php foreach ($rates as $rate): ?>
+                                                <option value="<?= $rate['id'] ?>"><?= $rate['name'] ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+
+                                </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </div>
+                    </form>
                 </div>
             </div>
         </div>

@@ -11,7 +11,7 @@
                 </ul>
             </div>
             <div class="col-lg-6 text-right">
-                Copyright <?php echo Date('Y'); ?> <a href="#">Xtrimfit</a>, Tous droits sont réservés.
+                Copyright <?php echo Date('Y'); ?> <a href="#">Xtrimfit</a>, Tous droits réservés.
             </div>
         </div>
     </div>

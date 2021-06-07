@@ -11,12 +11,15 @@ class Constants
 
     private static $url = 'localhost';
     private static $user_name = 'app';
-    private static $password = 'P@$$W0rd';
+//    private static $password = 'P@$$W0rd'; // Local
+    private static $password = 'Xtrim1Fit2$_'; // Prod
     private static  $db_name = 'xtrim';
 
     private static $roles = ['Administrateur', 'Agent'];
     private static $id_types = ['CIN', 'NIF', 'Passeport'];
     private static $invoice_status = ['Pending', 'Paid', 'Unpaid'];
+    private static $transaction_types = ['Retrait', 'Depot'];
+
 
     /**
      * @return string

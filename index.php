@@ -5,6 +5,8 @@ require_once('db/User.php');
 require_once('db/Database.php');
 require_once('db/Invoice.php');
 require_once('db/Customer.php');
+require_once('db/Rate.php');
+require_once('db/CashFund.php');
 
 //use Database;
 //use User;
@@ -18,7 +20,7 @@ if (!isset($_SESSION['user']) || !isset($_SESSION['user_id'])) {
 }
 
 
-if($_SESSION['user']['role'] !== 'Administrateur'){
+if ($_SESSION['user']['role'] !== 'Administrateur') {
     header("location:list-invoice.php");
     die();
 }
@@ -29,10 +31,17 @@ $_SESSION['active'] = 'index';
 
 
 $total_paid = Invoice::getTotalPaid(date('Y-m-d'))['total'];
-$total_unpaid = Invoice::getTotalUnpaid(date('Y-m-d'))['total'];
-$total_pending = Invoice::getTotalPending(date('Y-m-d'))['total'];
+$rates = Rate::getRates();
 
-$average_paid = ($total_paid * 100) / ($total_paid + $total_pending + $total_unpaid);
+
+
+//$total_unpaid = Invoice::getTotalUnpaid(date('Y-m-d'))['total'];
+//$total_pending = Invoice::getTotalPending(date('Y-m-d'))['total'];
+//$average_paid = 0;
+//if (($total_paid + $total_pending + $total_unpaid) > 0) {
+//    $average_paid = ($total_paid * 100) / ($total_paid + $total_pending + $total_unpaid);
+//}
+
 
 //var_dump($total_paid.' '.$total_pending.' '.$total_unpaid);
 //die();
@@ -57,7 +66,7 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
 <!doctype html>
 <html lang="en">
 <?php
-    include("parts/head.php");
+include("parts/head.php");
 ?>
 <body class="sidebar-main-active right-column-fixed header-top-bgcolor">
 <!-- loader Start -->
@@ -84,6 +93,7 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                 <div class="col-sm-6 col-md-6 col-lg-3">
                     <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
                         <div class="iq-card-body">
+                            <a href="list-invoice.php">
                             <div class="d-flex align-items-center justify-content-between">
                                 <h6>Factures a envoyer</h6>
                                 <span class="iq-icon"><i class="ri-information-fill"></i></span>
@@ -97,6 +107,7 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                                 <div class="iq-map text-primary font-size-32"><i class="ri-bar-chart-grouped-line"></i>
                                 </div>
                             </div>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -111,7 +122,7 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                                 <div class="d-flex align-items-center">
                                     <div class="rounded-circle iq-card-icon iq-bg-danger mr-2"><i
                                                 class="ri-radar-line"></i></div>
-                                    <h2>$<?= number_format($total_paid,2,'.', ',')?></h2></div>
+                                    <h2>$<?= number_format($total_paid, 2, '.', ',') ?></h2></div>
                                 <div class="iq-map text-danger font-size-32"><i class="ri-bar-chart-grouped-line"></i>
                                 </div>
                             </div>
@@ -120,20 +131,28 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                 </div>
                 <div class="col-sm-6 col-md-6 col-lg-3">
                     <div class="iq-card iq-card-block iq-card-stretch iq-card-height">
-                        <div class="iq-card-body">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <h6>Revenu moyen</h6>
-                                <span class="iq-icon"><i class="ri-information-fill"></i></span>
-                            </div>
-                            <div class="iq-customer-box d-flex align-items-center justify-content-between mt-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="rounded-circle iq-card-icon iq-bg-warning mr-2"><i
-                                                class="ri-price-tag-3-line"></i></div>
-                                    <h2><?= number_format($average_paid, 2, ',', '.') ?>%</h2></div>
-                                <div class="iq-map text-warning font-size-32"><i class="ri-bar-chart-grouped-line"></i>
+                        <a href="list-funds.php">
+                            <div class="iq-card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h6>Caisse</h6>
+                                    <span class="iq-icon"><i class="ri-information-fill"></i></span>
+                                </div>
+                                <div class="iq-customer-box d-flex align-items-center justify-content-between mt-3" style="flex-wrap: wrap;">
+                                    <?php foreach ($rates as $rate): ?>
+                                        <?php $balance = CashFund::getLastTransaction($rate['id'])['balance']; ?>
+
+                                        <?php if($balance > 2000): ?>
+                                            <span style="margin: 4px;" class="badge badge-pill border border-success text-success"><?= number_format($balance, 2, '.', ',').' '.$rate['name'] ?></span>
+                                        <?php elseif ($balance > 200): ?>
+                                            <span style="margin: 4px;" class="badge badge-pill border border-warning text-warning"><?= number_format($balance, 2, '.', ',').' '.$rate['name'] ?></span>
+                                        <?php else: ?>
+                                            <span style="margin: 4px;" class="badge badge-pill border border-danger text-danger"><?= number_format($balance, 2, '.', ',').' '.$rate['name'] ?></span>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
                                 </div>
                             </div>
-                        </div>
+                        </a>
+
                     </div>
                 </div>
                 <div class="col-sm-6 col-md-6 col-lg-3">
@@ -147,7 +166,7 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                                 <div class="d-flex align-items-center">
                                     <div class="rounded-circle iq-card-icon iq-bg-info mr-2"><i
                                                 class="ri-user-star-line"></i></div>
-                                    <h2><?= ((int) Customer::count()['qty'] - 1) ?></h2></div>
+                                    <h2><?= ((int)Customer::count()['qty'] - 1) ?></h2></div>
                                 <div class="iq-map text-info font-size-32"><i class="ri-bar-chart-grouped-line"></i>
                                 </div>
                             </div>
@@ -169,10 +188,11 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                                  </span>
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton"
                                          style="">
-<!--                                        <a class="dropdown-item" href="#"><i class="ri-eye-fill mr-2"></i>View</a>-->
-<!--                                        <a class="dropdown-item" href="#"><i class="ri-delete-bin-6-fill mr-2"></i>Delete</a>-->
-<!--                                        <a class="dropdown-item" href="#"><i class="ri-pencil-fill mr-2"></i>Edit</a>-->
-                                        <a class="dropdown-item" href="#"><i class="ri-printer-fill mr-2"></i>Imprimer</a>
+                                        <!--                                        <a class="dropdown-item" href="#"><i class="ri-eye-fill mr-2"></i>View</a>-->
+                                        <!--                                        <a class="dropdown-item" href="#"><i class="ri-delete-bin-6-fill mr-2"></i>Delete</a>-->
+                                        <!--                                        <a class="dropdown-item" href="#"><i class="ri-pencil-fill mr-2"></i>Edit</a>-->
+                                        <a class="dropdown-item" href="#"><i
+                                                    class="ri-printer-fill mr-2"></i>Imprimer</a>
                                         <a class="dropdown-item" href="#"><i class="ri-file-download-fill mr-2"></i>Telecharger</a>
                                     </div>
                                 </div>
@@ -208,10 +228,11 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                                  </span>
                                     <div class="dropdown-menu dropdown-menu-right"
                                          aria-labelledby="dropdownMenuButton5">
-<!--                                        <a class="dropdown-item" href="#"><i class="ri-eye-fill mr-2"></i>View</a>-->
-<!--                                        <a class="dropdown-item" href="#"><i class="ri-delete-bin-6-fill mr-2"></i>Delete</a>-->
-<!--                                        <a class="dropdown-item" href="#"><i class="ri-pencil-fill mr-2"></i>Edit</a>-->
-                                        <a class="dropdown-item" href="#"><i class="ri-printer-fill mr-2"></i>Imprimer</a>
+                                        <!--                                        <a class="dropdown-item" href="#"><i class="ri-eye-fill mr-2"></i>View</a>-->
+                                        <!--                                        <a class="dropdown-item" href="#"><i class="ri-delete-bin-6-fill mr-2"></i>Delete</a>-->
+                                        <!--                                        <a class="dropdown-item" href="#"><i class="ri-pencil-fill mr-2"></i>Edit</a>-->
+                                        <a class="dropdown-item" href="#"><i
+                                                    class="ri-printer-fill mr-2"></i>Imprimer</a>
                                         <a class="dropdown-item" href="#"><i class="ri-file-download-fill mr-2"></i>Telecharger</a>
                                     </div>
                                 </div>
@@ -231,20 +252,22 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                                     </thead>
                                     <tbody>
                                     <?php foreach ($pending_invoices as $invoice): ?>
-                                    <tr>
-                                        <td><a href="view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><?= $invoice['invoice_number'] ?></a></td>
-                                        <td>
-                                            <?php
-                                            $customer = Customer::getById($invoice['customer_id']);
-                                            ?>
-                                            <?= $customer['last_name'] . ' ' . $customer['first_name'] ?>
-                                        </td>
-                                        <td><?= date('d/m/Y', strtotime($invoice['from_date'])) ?></td>
-                                        <td>$<?= number_format($invoice['total'], 2, '.', '.') ?></td>
-                                        <td>
-                                            <div class="badge badge-pill badge-info">Envoyer par email</div>
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            <td>
+                                                <a href="view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><?= $invoice['invoice_number'] ?></a>
+                                            </td>
+                                            <td>
+                                                <?php
+                                                $customer = Customer::getById($invoice['customer_id']);
+                                                ?>
+                                                <?= $customer['last_name'] . ' ' . $customer['first_name'] ?>
+                                            </td>
+                                            <td><?= date('d/m/Y', strtotime($invoice['from_date'])) ?></td>
+                                            <td>$<?= number_format($invoice['total'], 2, '.', '.') ?></td>
+                                            <td>
+                                                <div class="badge badge-pill badge-info">Envoyer par email</div>
+                                            </td>
+                                        </tr>
                                     <?php endforeach; ?>
                                     </tbody>
                                 </table>
@@ -266,7 +289,8 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton1"
                                          style="">
                                         <a class="dropdown-item" href="#"><i class="ri-eye-fill mr-2"></i>Detail</a>
-                                        <a class="dropdown-item" href="#"><i class="ri-printer-fill mr-2"></i>Imprimer</a>
+                                        <a class="dropdown-item" href="#"><i
+                                                    class="ri-printer-fill mr-2"></i>Imprimer</a>
                                     </div>
                                 </div>
                             </div>
@@ -275,17 +299,23 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                             <ul class="suggestions-lists m-0 p-0">
                                 <?php foreach ($unpaid_invoices as $invoice): ?>
                                     <?php
-                                        $customer = Customer::getById($invoice['customer_id']);
+                                    $customer = Customer::getById($invoice['customer_id']);
                                     ?>
                                     <li class="d-flex mb-4 align-items-center">
-                                        <div class="profile-icon iq-bg-danger"><span><i class="ri-check-fill"></i></span>
+                                        <div class="profile-icon iq-bg-danger"><span><i
+                                                        class="ri-check-fill"></i></span>
                                         </div>
                                         <div class="media-support-info ml-3">
-                                            <h6><a href="view-customer.php?customer_id=<?= $customer['id'] ?>"><?= $customer['last_name'] . ' ' . $customer['first_name'] ?></a></h6>
-                                            <p class="mb-0"><span class="text-danger"><?= $invoice['invoice_number'] ?></span></p>
+                                            <h6>
+                                                <a href="view-customer.php?customer_id=<?= $customer['id'] ?>"><?= $customer['last_name'] . ' ' . $customer['first_name'] ?></a>
+                                            </h6>
+                                            <p class="mb-0"><span
+                                                        class="text-danger"><?= $invoice['invoice_number'] ?></span></p>
                                         </div>
                                         <div class="media-support-amount ml-3">
-                                            <h6><span class="text-secondary">$</span><b> <?= number_format($invoice['total'], 2, '.', '.') ?></b></h6>
+                                            <h6>
+                                                <span class="text-secondary">$</span><b> <?= number_format($invoice['total'], 2, '.', '.') ?></b>
+                                            </h6>
                                             <p class="mb-0">dû</p>
                                         </div>
                                     </li>
@@ -369,7 +399,8 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                                     <div class="dropdown-menu dropdown-menu-right"
                                          aria-labelledby="dropdownMenuButton-four" style="">
                                         <a class="dropdown-item" href="#"><i class="ri-eye-fill mr-2"></i>Details</a>
-                                        <a class="dropdown-item" href="#"><i class="ri-printer-fill mr-2"></i>Imprimer</a>
+                                        <a class="dropdown-item" href="#"><i
+                                                    class="ri-printer-fill mr-2"></i>Imprimer</a>
                                     </div>
                                 </div>
                             </div>
@@ -377,18 +408,22 @@ $unpaid_invoices = Invoice::getLastUnpaidInvoices();
                         <div class="iq-card-body">
                             <ul class="suggestions-lists m-0 p-0">
                                 <?php foreach ($paid_invoices as $invoice): ?>
-                                <li class="d-flex mb-4 align-items-center">
-                                    <div class="profile-icon bg-success"><span><i class="ri-money-dollar-box-line"></i></span>
-                                    </div>
-                                    <div class="media-support-info ml-3">
-                                        <h6><a href="view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><?= $invoice['invoice_number'] ?></a></h6>
-                                        <p class="mb-0"><?= date('d/m/Y', strtotime($invoice['paid_date'])) ?></p>
-                                    </div>
-                                    <div class="media-support-amount ml-3">
-                                        <h6 class="text-success">+ <?= number_format($invoice['total'], 2, '.', '.') ?></h6>
-                                        <p class="mb-0">USD</p>
-                                    </div>
-                                </li>
+                                    <li class="d-flex mb-4 align-items-center">
+                                        <div class="profile-icon bg-success"><span><i
+                                                        class="ri-money-dollar-box-line"></i></span>
+                                        </div>
+                                        <div class="media-support-info ml-3">
+                                            <h6>
+                                                <a href="view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><?= $invoice['invoice_number'] ?></a>
+                                            </h6>
+                                            <p class="mb-0"><?= date('d/m/Y', strtotime($invoice['paid_date'])) ?></p>
+                                        </div>
+                                        <div class="media-support-amount ml-3">
+                                            <h6 class="text-success">
+                                                + <?= number_format($invoice['total'], 2, '.', '.') ?></h6>
+                                            <p class="mb-0">USD</p>
+                                        </div>
+                                    </li>
                                 <?php endforeach; ?>
                             </ul>
                         </div>

@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 //    die();
 }
 
-header("location:../list-customer.php?message='Informations mises à jour'");
+header("location:../list-customer.php?message='Informations mises à jour'&error=1");
 die();
 ?>
 

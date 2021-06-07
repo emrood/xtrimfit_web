@@ -2,6 +2,8 @@
 
 require_once('db/User.php');
 require_once('db/Database.php');
+require_once('db/Device.php');
+require_once('db/UserLog.php');
 
 // error_reporting(E_ALL);
 // ini_set("display_errors", 1);
@@ -9,60 +11,38 @@ require_once('db/Database.php');
 session_start();
 //$error = '';
 
-if($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
+    $check_device = Device::getByFingerPrint($_POST['browser_fingerprint']);
 
-    // username and password sent from form
+    if ($check_device !== null) {
+        $_POST['device_name'] = 'Test';
 
+        Device::updateAll(Device::convertRowToObject($_POST));
 
-//    $myusername = mysqli_real_escape_string($db, $_POST['username']);
-//    $mypassword = mysqli_real_escape_string($db, $_POST['password']);
+        $myusername = $_POST['email'];
+        $mypassword = $_POST['password'];
 
-    $myusername = $_POST['email'];
-    $mypassword = $_POST['password'];
+        $logged_in_user = User::login($myusername, $mypassword);
 
-//    var_dump(password_hash($mypassword, PASSWORD_BCRYPT));
-//    die();
+        if ($logged_in_user) {
+            $insert = UserLog::insert(new UserLog(0, $logged_in_user['id'], $_POST['browser_fingerprint'], $_POST['user_browser'], $_POST['user_timezone'], $_POST['user_system_info_full'], date('Y-m-d H:i:s'), date('Y-m-d H:i:s')));
 
-
-    $logged_in_user = User::login($myusername, $mypassword);
-
-//    var_dump($logged_in_user);
-//    die();
-
-    if($logged_in_user){
-        // TODO SEARCH IF USER IS ACTIVE OR NOTE
-        $_SESSION['is_logged_id'] = true;
-        $_SESSION['user'] = $logged_in_user;
-        $_SESSION['user_id'] = $logged_in_user['id'];
-        $_SESSION['timeout'] = time();
-        header("location: index.php");
+            // TODO SEARCH IF USER IS ACTIVE OR NOTE
+            $_SESSION['is_logged_id'] = true;
+            $_SESSION['user'] = $logged_in_user;
+            $_SESSION['user_id'] = $logged_in_user['id'];
+            $_SESSION['timeout'] = time();
+            header("location: index.php");
+        } else {
+            $error = "Email ou mot de passe incorrecte";
+        }
     }else{
-
-        $error = "Email ou mot de passe incorrecte";
-
+        // REJECT LOGIN
+        $error = "Appareil non autorisé !";
     }
 
-////    $sql = "SELECT id FROM admin WHERE username = '$myusername' and passcode = '$mypassword'";
-////    $result = mysqli_query($db,$sql);
-//
-//    $row = mysqli_fetch_array($result,MYSQLI_ASSOC);
-//    $active = $row['active'];
-//
-//    $count = mysqli_num_rows($result);
-//
-//    // If result matched $myusername and $mypassword, table row must be 1 row
-//
-//    if($count == 1) {
-//        session_register("myusername");
-//        $_SESSION['login_user'] = $myusername;
-//        $_SESSION['timeout'] = time();
-//
-//        header("location: index.php");
-//    }else {
-//        $error = "Your Login Name or Password is invalid";
-//    }
-}else{
+} else {
     unset($_SESSION["users"]);
     unset($_SESSION["is_logged_id"]);
     unset($_SESSION["user_id"]);
@@ -78,7 +58,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Xtrimfit</title>
     <!-- Favicon -->
-    <link rel="shortcut icon" href="images/favicon.ico" />
+    <link rel="shortcut icon" href="images/favicon.ico"/>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <!-- Typography CSS -->
@@ -98,9 +78,23 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 <!-- Sign in Start -->
 <section class="sign-in-page">
     <?php
-        include("parts/alert.php");
+    include("parts/alert.php");
+    ?>
+    <?php
+    if (isset($error)):
+        ?>
+        <div class="alert text-white bg-danger" role="alert">
+            <div class="iq-alert-icon">
+                <i class="ri-information-line"></i>
+            </div>
+            <div class="iq-alert-text"><?php echo $error ?>
+            </div>
+        </div>
+    <?php
+    endif;
     ?>
     <div class="container bg-white mt-5 p-0">
+
         <div class="row no-gutters">
             <div class="col-sm-6 align-self-center">
                 <div style="text-align: center;">
@@ -110,15 +104,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="sign-in-from">
                     <h1 class="mb-0">S'identifier</h1>
                     <p>Entrez votre adresse e-mail et votre mot de passe pour accéder au panneau d'administration.</p>
-                    <form class="mt-4" action = "" method = "post">
+                    <form class="mt-4" action="" method="post">
                         <div class="form-group">
                             <label for="exampleInputEmail1">Adresse e-mail</label>
-                            <input type="email" name="email" class="form-control mb-0" id="exampleInputEmail1" placeholder="Enter email">
+                            <input type="email" name="email" class="form-control mb-0" id="exampleInputEmail1"
+                                   placeholder="Enter email">
                         </div>
                         <div class="form-group">
                             <label for="exampleInputPassword1">Mot de passe</label>
                             <a href="#" class="float-right">Mot de passe oublié ?</a>
-                            <input type="password" name="password" class="form-control mb-0" id="exampleInputPassword1" placeholder="Password">
+                            <input type="password" name="password" class="form-control mb-0" id="exampleInputPassword1"
+                                   placeholder="Password">
                         </div>
                         <div class="d-inline-block w-100">
                             <!--<div class="custom-control custom-checkbox d-inline-block mt-2 pt-1">-->
@@ -135,37 +131,29 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                         <!--<li><a href="#"><i class="ri-instagram-line"></i></a></li>-->
                         <!--</ul>-->
                         <!--</div>-->
-                    </form>
-
-                        <?php
-                           if(isset($error)):
-                        ?>
-
-                    <div class="toast fade show bg-primary text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="toast-header bg-primary text-white">
-<!--                            <svg class="bd-placeholder-img rounded mr-2" width="20" height="20" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img">-->
-<!--                                <rect width="100%" height="100%" fill="#fff"></rect>-->
-<!--                            </svg>-->
-                            <strong class="mr-auto text-white">XTRIMFIT</strong>
-                            <small>Erreur</small>
-                            <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close">
-                                <span aria-hidden="true">×</span>
+                        <div class="form-group" style="display: flex; margin-top: 50px;">
+                            <input type="text" name="browser_fp" disabled id="finger-id" class="form-control finger_id"
+                                   style="width: 60%"/>
+                            <button class="btn btn-info" style="margin-left: 10px;"><i class="ri ri-safe-line"></i>
                             </button>
+                            <input type="hidden" name="user_timezone" id="user-timezone"/>
+                            <input type="hidden" name="user_system_info" id="user-system-info"/>
+                            <input type="hidden" name="user_system_info_full" id="user-system-info-full"/>
+                            <input type="hidden" name="user_browser" id="user-browser"/>
+                            <input type="hidden" name="browser_fingerprint" id="user-fingerprint"/>
+                            <input type="hidden" name="created_at" value="<?= date('Y-m-d H:i:s') ?>"/>
+                            <input type="hidden" name="updated_at" value="<?= date('Y-m-d H:i:s') ?>"/>
+                            <input type="hidden" name="id" value="0"/>
                         </div>
-                        <div class="toast-body">
-                            <?php echo $error ?>
-                        </div>
-                    </div>
-
-                    <?php
-                        endif;
-                    ?>
+                    </form>
                 </div>
             </div>
             <div class="col-sm-6 text-center">
                 <div class="sign-in-detail text-white">
                     <!--<a class="sign-in-logo mb-5" href="#"><img src="images/logo-white.png" class="img-fluid" alt="logo"></a>-->
-                    <div class="owl-carousel" data-autoplay="true" data-loop="true" data-nav="false" data-dots="true" data-items="1" data-items-laptop="1" data-items-tab="1" data-items-mobile="1" data-items-mobile-sm="1" data-margin="0">
+                    <div class="owl-carousel" data-autoplay="true" data-loop="true" data-nav="false" data-dots="true"
+                         data-items="1" data-items-laptop="1" data-items-tab="1" data-items-mobile="1"
+                         data-items-mobile-sm="1" data-margin="0">
                         <div class="item">
                             <img src="images/login/xtrim1.jpeg" class="img-fluid mb-4" alt="logo">
                             <h4 class="mb-1 text-white"></h4>
@@ -219,5 +207,132 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 <!-- Custom JavaScript -->
 <script src="js/custom.js"></script>
 <script src="js/alert.js"></script>
+<script src="js/fingerprint.js"></script>
+<script
+        async
+        src="js/fp.min.js"
+        onload="initFingerprintJS()"
+></script>
+
+<script>
+function initFingerprintJS() {
+    // Initialize an agent at application startup.
+    const fpPromise = FingerprintJS.load()
+
+    // Get the visitor identifier when you need it.
+    fpPromise
+        .then(fp => fp.get())
+        .then(result => {
+            // This is the visitor identifier:
+            const visitorId = result.visitorId
+            // console.log(visitorId)
+            // console.log(result);
+            // console.log(result.components.timezone.value);
+            // console.log(result.components.platform.value);
+            $("#finger-id").val(visitorId);
+            $("#user-fingerprint").val(visitorId);
+            $("#user-timezone").val(result.components.timezone.value);
+            $("#user-system-info").val(result.components.platform.value);
+        })
+}
+</script>
+<script>
+
+    // Shorthand for $( document ).ready()
+    $(function () {
+        // console.log('SYSTEM:', detectBrowser('system'));
+        // console.log('BROWSER:', detectBrowser('browser'));
+        // console.log('EVERYTHING:', detectBrowser('else'));
+        $("#user-system-info-full").val(detectBrowser('system'));
+        $("#user-browser").val(detectBrowser('browser'));
+    });
+
+    //gets the type of browser
+    function detectBrowser(query) {
+        // if((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf('OPR')) != -1 ) {
+        //     return 'Opera';
+        // } else if(navigator.userAgent.indexOf("Chrome") != -1 ) {
+        //     return 'Chrome';
+        // } else if(navigator.userAgent.indexOf("Safari") != -1) {
+        //     return 'Safari';
+        // } else if(navigator.userAgent.indexOf("Firefox") != -1 ){
+        //     return 'Firefox';
+        // } else if((navigator.userAgent.indexOf("MSIE") != -1 ) || (!!document.documentMode == true )) {
+        //     return 'IE';//crap
+        // } else {
+        //     return 'Unknown';
+        // }
+
+        var nVer = navigator.appVersion;
+        var nAgt = navigator.userAgent;
+        var browserName = navigator.appName;
+        var fullVersion = '' + parseFloat(navigator.appVersion);
+        var majorVersion = parseInt(navigator.appVersion, 10);
+        var nameOffset, verOffset, ix;
+
+// In Opera 15+, the true version is after "OPR/"
+        if ((verOffset = nAgt.indexOf("OPR/")) != -1) {
+            browserName = "Opera";
+            fullVersion = nAgt.substring(verOffset + 4);
+        }
+// In older Opera, the true version is after "Opera" or after "Version"
+        else if ((verOffset = nAgt.indexOf("Opera")) != -1) {
+            browserName = "Opera";
+            fullVersion = nAgt.substring(verOffset + 6);
+            if ((verOffset = nAgt.indexOf("Version")) != -1)
+                fullVersion = nAgt.substring(verOffset + 8);
+        }
+// In MSIE, the true version is after "MSIE" in userAgent
+        else if ((verOffset = nAgt.indexOf("MSIE")) != -1) {
+            browserName = "Microsoft Internet Explorer";
+            fullVersion = nAgt.substring(verOffset + 5);
+        }
+// In Chrome, the true version is after "Chrome"
+        else if ((verOffset = nAgt.indexOf("Chrome")) != -1) {
+            browserName = "Chrome";
+            fullVersion = nAgt.substring(verOffset + 7);
+        }
+// In Safari, the true version is after "Safari" or after "Version"
+        else if ((verOffset = nAgt.indexOf("Safari")) != -1) {
+            browserName = "Safari";
+            fullVersion = nAgt.substring(verOffset + 7);
+            if ((verOffset = nAgt.indexOf("Version")) != -1)
+                fullVersion = nAgt.substring(verOffset + 8);
+        }
+// In Firefox, the true version is after "Firefox"
+        else if ((verOffset = nAgt.indexOf("Firefox")) != -1) {
+            browserName = "Firefox";
+            fullVersion = nAgt.substring(verOffset + 8);
+        }
+// In most other browsers, "name/version" is at the end of userAgent
+        else if ((nameOffset = nAgt.lastIndexOf(' ') + 1) <
+            (verOffset = nAgt.lastIndexOf('/'))) {
+            browserName = nAgt.substring(nameOffset, verOffset);
+            fullVersion = nAgt.substring(verOffset + 1);
+            if (browserName.toLowerCase() == browserName.toUpperCase()) {
+                browserName = navigator.appName;
+            }
+        }
+// trim the fullVersion string at semicolon/space if present
+        if ((ix = fullVersion.indexOf(";")) != -1)
+            fullVersion = fullVersion.substring(0, ix);
+        if ((ix = fullVersion.indexOf(" ")) != -1)
+            fullVersion = fullVersion.substring(0, ix);
+
+        majorVersion = parseInt('' + fullVersion, 10);
+        if (isNaN(majorVersion)) {
+            fullVersion = '' + parseFloat(navigator.appVersion);
+            majorVersion = parseInt(navigator.appVersion, 10);
+        }
+
+        if (query === 'browser') {
+            return browserName + ' ' + fullVersion;
+        } else if (query === 'system') {
+            return navigator.userAgent
+        } else {
+            return navigator.userAgent
+        }
+    }
+</script>
 </body>
 </html>

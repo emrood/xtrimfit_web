@@ -8,13 +8,31 @@
 require_once('../db/Invoice.php');
 require_once('../db/Pricing.php');
 
-$error = false;
+$error = 1;
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 //    var_dump($_POST);
 //    die();
+
+    $temp_total = (double) $_POST['price'] + (double) $_POST['fees'];
+
+    if((double) $_POST['discount_percentage'] > 0){
+        $temp_total = $temp_total - ($temp_total * ((double) $_POST['discount_percentage']) / 100);
+    }
+
+    if((double) $_POST['taxe_percentage'] > 0){
+        $temp_total = $temp_total + ($temp_total * ((double) $_POST['taxe_percentage']) / 100);
+    }
+
+    $_POST['total'] = (double) $temp_total;
+
+    if($_POST['status'] === 'Paid'){
+        $_POST['paid_date'] = date('Y-m-d');
+    }else{
+        $_POST['paid_date'] = null;
+    }
 
     if((int) $_POST['id'] === 0){
         $_POST['status'] = 'Paid';
@@ -23,54 +41,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_POST['pricing_id'] = 1;
         $_POST['price'] = Pricing::getById(1)['price'];
 
-        $temp_total = (double) $_POST['price'] + (double) $_POST['fees'];
 
-        if((double) $_POST['discount_percentage'] > 0){
-            $temp_total = $temp_total - ($temp_total * ((double) $_POST['discount_percentage']) / 100);
-        }
-
-        if((double) $_POST['taxe_percentage'] > 0){
-            $temp_total = $temp_total + ($temp_total * ((double) $_POST['taxe_percentage']) / 100);
-        }
-
-        $_POST['total'] = (double) $temp_total;
-
-        if($_POST['status'] === 'Paid'){
-            $_POST['paid_date'] = date('Y-m-d');
-        }else{
-            $_POST['paid_date'] = null;
-        }
 
         $new_invoice = Invoice::convertRowToObject($_POST);
         Invoice::insert($new_invoice);
-        $message = "Facture enregistre";
+        $message = "Facture enregistrée";
     }else{
 
-        $temp_total = (double) $_POST['price'] + (double) $_POST['fees'];
 
-        if((double) $_POST['discount_percentage'] > 0){
-            $temp_total = $temp_total - ($temp_total * ((double) $_POST['discount_percentage']) / 100);
-        }
-
-        if((double) $_POST['taxe_percentage'] > 0){
-            $temp_total = $temp_total + ($temp_total * ((double) $_POST['taxe_percentage']) / 100);
-        }
-
-        $_POST['total'] = (double) $temp_total;
-
-        if($_POST['status'] === 'Paid'){
-            $_POST['paid_date'] = date('Y-m-d');
-        }else{
-            $_POST['paid_date'] = null;
-        }
         $new_invoice = Invoice::convertRowToObject($_POST);
 
-        foreach ($_POST as $key => $value){
-            if($key !== 'id'){
-                Invoice::update($new_invoice->getId(), $key, $value);
-                var_dump($key.' => '.$value.'<br/>');
-            }
-        }
+//        foreach ($_POST as $key => $value){
+//            if($key !== 'id'){
+//                Invoice::update($new_invoice->getId(), $key, $value);
+//                var_dump($key.' => '.$value.'<br/>');
+//            }
+//        }
         Invoice::updateAll($new_invoice);
 
 //        var_dump($new_invoice);

@@ -10,7 +10,7 @@ require_once('../db/User.php');
 
 
 $message = 'Utilisateur mis a jour !';
-$error = false;
+$error = 1;
 
 if (isset($_GET['user_id'])) {
     User::update($_GET['user_id'], 'active', '1');

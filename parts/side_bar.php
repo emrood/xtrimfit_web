@@ -26,6 +26,9 @@
                 <li class="<?php if ($_SESSION['active'] === 'list-invoice'): echo 'active'; endif; ?>"><a
                             href="list-invoice.php" class="iq-waves-effect"><i class="ri-profile-line"></i><span>Factures</span></a>
                 </li>
+                <li class="<?php if ($_SESSION['active'] === 'list-funds'): echo 'active'; endif; ?>"><a
+                            href="list-funds.php" class="iq-waves-effect"><i class="ri-currency-fill"></i><span>Caisse</span></a>
+                </li>
                 <li class="<?php if (strpos($_SESSION['active'], 'customer') !== false): echo 'active'; endif; ?>">
                     <a href="#customers" class="iq-waves-effect collapse" data-toggle="collapse"
                        aria-expanded="false"><i class="ri-user-line"></i><span>Clients</span><i
@@ -37,6 +40,7 @@
                                     href="add-customer.php"><i class="ri-user-add-line"></i>Ajouter un client</a></li>
                     </ul>
                 </li>
+
                 <?php if ($_SESSION['user']['role'] === 'Administrateur'): ?>
                     <li>
                         <a href="#icons" class="iq-waves-effect collapsed" data-toggle="collapse" aria-expanded="false"><i
@@ -70,11 +74,11 @@
                 <li class="<?php if ($_SESSION['active'] === 'calendar'): echo 'active'; endif; ?>"><a
                             href="calendar.php" class="iq-waves-effect"><i class="ri-calendar-2-line"></i><span>Calendrier</span></a>
                 </li>
-                <li class="<?php if ($_SESSION['active'] === 'list-pricing'): echo 'active'; endif; ?>"><a
-                            href="list-pricing.php" class="iq-waves-effect"><i class="ri-price-tag-line"></i><span>Pricing</span></a>
-                </li>
+<!--                <li class="--><?php //if ($_SESSION['active'] === 'list-pricing'): echo 'active'; endif; ?><!--"><a-->
+<!--                            href="list-pricing.php" class="iq-waves-effect"><i class="ri-price-tag-line"></i><span>Pricing</span></a>-->
+<!--                </li>-->
                 <?php if ($_SESSION['user']['role'] === 'Administrateur'): ?>
-                    <li class="<?php if ($_SESSION['active'] === 'settings'): echo 'active'; endif; ?>"><a href="#"
+                    <li class="<?php if ($_SESSION['active'] === 'list-setting'): echo 'active'; endif; ?>"><a href="list-setting.php"
                                                                                                            class="iq-waves-effect"><i
                                     class="ri-settings-2-line"></i><span>Paramètres</span></a></li>
                 <?php endif; ?>

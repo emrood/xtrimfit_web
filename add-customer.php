@@ -121,6 +121,7 @@ include("parts/head.php");
                                             <div class="form-group col-md-6">
                                                 <label for="fname">Prenom:</label>
                                                 <input type="text" name="first_name"
+                                                       required="required"
                                                        value="<?= $customer['first_name'] ?>" class="form-control"
                                                        id="fname"
                                                        placeholder="Prénom">
@@ -128,6 +129,7 @@ include("parts/head.php");
                                             <div class="form-group col-md-6">
                                                 <label for="lname">Nom:</label>
                                                 <input type="text" name="last_name"
+                                                       required="required"
                                                        value="<?= $customer['last_name'] ?>" class="form-control"
                                                        id="lname"
                                                        placeholder="Nom de famille">
@@ -141,6 +143,7 @@ include("parts/head.php");
                                             <div class="form-group col-md-6">
                                                 <label for="mobno">Téléphone mobile:</label>
                                                 <input type="text" name="phone" value="<?= $customer['phone'] ?>"
+                                                       required="required"
                                                        class="form-control" id="mobno"
                                                        placeholder="Numéro de téléphone mobile">
                                             </div>
@@ -153,7 +156,7 @@ include("parts/head.php");
                                             </div>
                                             <div class="form-group col-md-12">
                                                 <label for="email">Email:</label>
-                                                <input type="email" name="email" class="form-control"
+                                                <input type="email" required="required" name="email" class="form-control"
                                                        value="<?= $customer['email'] ?> " id="email"
                                                        placeholder="Email">
                                             </div>
@@ -161,6 +164,7 @@ include("parts/head.php");
                                             <div class="form-group col-md-8">
                                                 <label for="cname">Numero d'identité:</label>
                                                 <input type="text" name="personal_id"
+                                                       required="required"
                                                        value="<?= $customer['personal_id'] ?> " class="form-control"
                                                        id="cname"
                                                        placeholder="Numero d'itentité">

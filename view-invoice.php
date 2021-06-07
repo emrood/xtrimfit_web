@@ -6,6 +6,7 @@ require_once('db/Customer.php');
 require_once('db/Invoice.php');
 require_once('db/Database.php');
 require_once('db/Pricing.php');
+require_once('db/Rate.php');
 
 //use Database;
 //use User;
@@ -28,9 +29,10 @@ $offset = 0;
 if (isset($_GET['invoice_id']) && !empty($_GET['invoice_id'])) {
 
     $pricings = Pricing::getPricings();
+    $rates = Rate::getRates();
 
     if ($_GET['invoice_id'] === 'new') {
-        $invoice = json_decode(json_encode(new Invoice(0, Invoice::invoice_num(1, 7, 'XS1-'), 1, 1, $pricings[0]['price'], 0, 0, 0, $pricings[0]['price'], 'Paid', date('Y-m-d'), date('Y-m-d'), date('Y-m-d'), '', date('Y-m-d H:i:s'))), true);
+        $invoice = json_decode(json_encode(new Invoice(0, Invoice::invoice_num(1, 7, 'XS1-'), 1, 1, $pricings[0]['price'], 0, 0, 0, $pricings[0]['price'], 'Paid', date('Y-m-d'), date('Y-m-d'), date('Y-m-d'), '', date('Y-m-d H:i:s'), 2, 1)), true);
     } else {
         $invoice = Invoice::getById($_GET['invoice_id']);
     }
@@ -93,27 +95,28 @@ include("parts/head.php");
                                 <h4 class="card-title">Facture #<?= $invoice['invoice_number'] ?></h4>
                                 <?php if ($_SESSION['user']['role'] === 'Administrateur' && $invoice['id'] > 0): ?>
                                     <br/>
-                                    <a href="delete-invoice.php?invoice_id=<?= $invoice['id'] ?>"
-                                       class="btn btn-primary pull-right"><i class="ri-delete-bin-line"></i>
-                                        Supprimer</a>
+<!--                                    <a href="delete-invoice.php?invoice_id=--><?//= $invoice['id'] ?><!--"-->
+<!--                                       class="btn btn-primary pull-right"><i class="ri-delete-bin-line"></i>-->
+<!--                                        Supprimer</a>-->
                                 <?php endif; ?>
                             </div>
                         </div>
                         <div class="iq-card-body">
                             <p></p>
                             <form action="invoice/save-invoice.php" method="post">
-                                <input type="hidden" name="customer_id" class="form-control" id="exampleInputText1"
-                                       value="<?= $invoice['customer_id'] ?>">
+                                <input type="hidden" name="customer_id" class="form-control" id="exampleInputText1" value="<?= $invoice['customer_id'] ?>">
                                 <input type="hidden" name="id" class="form-control" id="exampleInputText1"
                                        value="<?= $invoice['id'] ?>">
                                 <input type="hidden" name="invoice_number" class="form-control" id="exampleInputText1"
                                        value="<?= $invoice['invoice_number'] ?>">
-                                <input type="hidden" name="created_at" class="form-control" id="exampleInputText1"
-                                       value="<?= $invoice['created_at'] ?>">
-                                <input type="hidden" name="updated_at" class="form-control" id="exampleInputText1"
-                                       value="<?= date('Y-m-d') ?>">
-                                <input type="hidden" name="paid_date" class="form-control" id="exampleInputText1"
-                                       value="<?= date('Y-m-d') ?>">
+                                <input type="hidden" name="created_at" class="form-control" id="exampleInputText1" value="<?= $invoice['created_at'] ?>">
+                                <input type="hidden" name="updated_at" class="form-control" id="exampleInputText1" value="<?= date('Y-m-d') ?>">
+                                <input type="hidden" name="paid_date" class="form-control" id="exampleInputText1" value="<?= date('Y-m-d') ?>">
+                                <input type="hidden" name="price" class="form-control" id="exampleInputText1" value="<?= $invoice['price'] ?>">
+                                <input type="hidden" name="rate" class="form-control" id="exampleInputText1" value="1">
+                                <?php if((int)$invoice['customer_id'] === 1): ?>
+                                    <input type="hidden" name="status" class="form-control" id="exampleInputText1" value="Paid">
+                                <?php endif; ?>
 
                                 <div class="form-group">
                                     <label for="exampleInputText1">Client </label>
@@ -122,7 +125,7 @@ include("parts/head.php");
                                 </div>
                                 <div class="form-group">
                                     <label>Plan</label>
-                                    <select name="pricing_id" class="form-control mb-3">
+                                    <select name="pricing_id" class="form-control mb-3" <?= ((int)$invoice['customer_id'] !== 1 && $invoice['status'] === 'Paid') ? 'disabled' : '' ?>>
                                         <?php foreach ($pricings as $pricing): ?>
                                             <?php if ((int)$customer['id'] !== 1): ?>
                                                 <?php if ((int)$pricing['id'] !== 1): ?>
@@ -161,8 +164,8 @@ include("parts/head.php");
                                 <div class="form-row">
                                     <div class="col">
                                         <label for="exampleInputText1">Prix de base (USD)</label>
-                                        <input type="number" name="price" value="<?= $invoice['price'] ?>"
-                                               class="form-control" <?= ((int)$invoice['customer_id'] === 1) ? 'disabled' : '' ?>
+                                        <input type="number" value="<?= $invoice['price'] ?>"
+                                               class="form-control" disabled="disabled"
                                                placeholder="0.00">
                                     </div>
                                     <div class="col">
@@ -202,10 +205,22 @@ include("parts/head.php");
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="exampleInputEmail3">Total (USD)</label>
+                                    <label>Paye en </label>
+                                    <select name="rate_id" <?= ((int)$invoice['status'] === 'Paid') ? 'disabled' : '' ?>
+                                            class="form-control mb-3">
+                                        <?php foreach ($rates as $rate): ?>
+                                            <option <?= 'currency="'.$rate['id'].'"' ?>  <?= 'c_abbreviation="'.$rate['name'].'"' ?>  <?= 'rate="'.$rate['value'].'"' ?> <?= ($rate['id'] === $invoice['rate_id']) ? 'selected="selected"' : '' ?> value="<?= $rate['id'] ?>"><?= $rate['name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="exampleInputEmail3" class="rate_label">Total (USD)</label>
                                     <input type="number" name="total" disabled class="form-control"
                                            value="<?= $invoice['total'] ?>" id="exampleInputEmail3" placeholder="0.0">
                                 </div>
+
+
 
                                 <div class="form-group">
                                     <label for="exampleInputEmail3">Commentaire</label>
@@ -216,7 +231,7 @@ include("parts/head.php");
 
                                 <br/>
                                 <hr/>
-                                <?php if ($invoice['status'] === 'Paid'): ?>
+                                <?php if ($invoice['status'] === 'Paid' && (int) $invoice['id'] != 0): ?>
 
                                     <div class="alert alert-primary col-md-2 text-center pull-right" role="alert">
                                         <div class="iq-alert-text"><a href="#" class="alert-link">Payée le <?= date('d/m/Y', strtotime($invoice['paid_date'])) ?></a>.
@@ -232,7 +247,7 @@ include("parts/head.php");
                                 <?php if ($invoice['status'] !== 'Paid' || (int)$invoice['id'] === 0): ?>
                                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                                 <?php endif; ?>
-                                <a href="list-invoice.php" class="btn iq-bg-secondary">Annuler</a>
+                                <a href="list-invoice.php" class="btn iq-bg-secondary">Retour</a>
                                 <a href="#" onclick="PrintElem()" class="btn iq-bg-danger pull-right"><i
                                             class="ri-printer-line"></i>Imprimer</a>
                             </form>
@@ -245,21 +260,9 @@ include("parts/head.php");
 </div>
 <!-- Wrapper END -->
 <!-- Footer -->
-<footer class="bg-white iq-footer">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-6">
-                <ul class="list-inline mb-0">
-                    <li class="list-inline-item"><a href="privacy-policy.html">Privacy Policy</a></li>
-                    <li class="list-inline-item"><a href="terms-of-service.html">Terms of Use</a></li>
-                </ul>
-            </div>
-            <div class="col-lg-6 text-right">
-                Copyright 2020 <a href="#">Vito</a> All Rights Reserved.
-            </div>
-        </div>
-    </div>
-</footer>
+<?php
+include("parts/footer.php");
+?>
 <!-- Footer END -->
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -315,6 +318,9 @@ include("parts/head.php");
     $(function () {
         // console.log( "ready!" );
 
+        updateTotal();
+
+
         $('input[name="price"]').change(function () {
             updateTotal();
         });
@@ -328,6 +334,10 @@ include("parts/head.php");
         });
 
         $('input[name="discount_percentage"]').change(function () {
+            updateTotal();
+        });
+
+        $('select[name="rate_id"]').change(function () {
             updateTotal();
         });
 
@@ -347,8 +357,15 @@ include("parts/head.php");
         var fees = parseFloat($('input[name="fees"]').val());
         var taxe = parseFloat($('input[name="taxe_percentage"]').val());
         var discount = parseFloat($('input[name="discount_percentage"]').val());
+        var rate_selected = parseFloat($('select[name="rate_id"]').val());
+        // var rate_to_apply = parseFloat($('select[name="rate_id"]').attr("rate"));
+        var rate_to_apply = parseFloat($('option[currency="'+ rate_selected +'"]').attr("rate"));
+        var currency = $('option[currency="'+ rate_selected +'"]').attr("c_abbreviation");
 
-        console.log('BASE_PRICE', base_price);
+        // console.log('RATE_TO_APPLY', rate_to_apply);
+        // console.log('RATE_SELECTED', rate_selected);
+        // console.log('base_price', base_price);
+        // console.log('abbrev', $('option[currency="'+ rate_selected +'"]').attr("c_abbreviation"));
 
         var total = base_price + fees;
 
@@ -360,7 +377,13 @@ include("parts/head.php");
             total = total + (total * taxe / 100);
         }
 
+        var label = "TOTAL ("+currency+")";
+        total *= rate_to_apply;
+
+
+        $('input[name="rate"]').val(rate_to_apply);
         $('input[name="total"]').val(total);
+        $('.rate_label').text(label);
     }
 </script>
 </body>

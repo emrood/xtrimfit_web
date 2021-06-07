@@ -15,7 +15,8 @@ class Pricing
     private $id;
     private $name;
     private $price;
-    private $creted_at;
+    private $billing;
+    private $created_at;
     private $updated_at;
 
     /**
@@ -23,15 +24,16 @@ class Pricing
      * @param $id
      * @param $name
      * @param $price
-     * @param $creted_at
+     * @param $created_at
      * @param $updated_at
      */
-    public function __construct($id, $name, $price, $creted_at, $updated_at)
+    public function __construct($id, $name, $price, $billing, $created_at, $updated_at)
     {
         $this->id = $id;
         $this->name = $name;
         $this->price = $price;
-        $this->creted_at = $creted_at;
+        $this->billing = $billing;
+        $this->created_at = $created_at;
         $this->updated_at = $updated_at;
     }
 
@@ -96,6 +98,7 @@ class Pricing
             $row['id'],
             $row['name'],
             $row['price'],
+            $row['billing'],
             $row['created_at'],
             $row['updated_at']
         );
@@ -103,17 +106,19 @@ class Pricing
 
     public static function insert (Pricing $pricing){
 
+        $result = null;
+
         try{
             $database = self::getConnection();
 
-//            var_dump("IN_INSERT </br>");
-            $database->executeQuery('INSERT INTO pricings (`name`, price, created_at, updated_at) VALUES ("?", "?", "?", "?")',
-                array($pricing->name, $pricing->price, $pricing->created_at, $pricing->updated_at));
+          $result =  $database->executeQuery('INSERT INTO pricings (`name`, price, billing,created_at, updated_at) VALUES ("?", "?", "?", "?", "?")',
+                array($pricing->name, $pricing->price, $pricing->billing,$pricing->created_at, $pricing->updated_at));
 
-//            var_dump("AFTER_INSERT </br>");
         }catch (Exception $e){
             var_dump($e->getMessage());
         }
+
+        return $result;
 
     }
 
@@ -135,8 +140,18 @@ class Pricing
 
 
     public static function update( $Id, $olumn, $value){
-        self::getConnection()->executeQuery("UPDATE invoices SET ".$olumn." = ? , updated_at = ? WHERE id = ?",
-            array($value, date("Y-m-d H:i:s"), $Id));
+
+        if(is_string($value)){
+            self::getConnection()->executeQuery("UPDATE pricings SET " . $olumn . " = '?' , updated_at = '?' WHERE id = ?", array($value, date("Y-m-d H:i:s"), $Id));
+        }else{
+            self::getConnection()->executeQuery("UPDATE pricings SET " . $olumn . " = ? , updated_at = '?' WHERE id = ?", array($value, date("Y-m-d H:i:s"), $Id));
+        }
+//        self::getConnection()->executeQuery("UPDATE pricings SET ".$olumn." = ? , updated_at = '?' WHERE id = ?",
+//            array($value, date("Y-m-d H:i:s"), $Id));
+    }
+
+    public static function delete($Id){
+        self::getConnection()->executeQuery("DELETE FROM pricings WHERE id = ?", array($Id));
     }
 
 }

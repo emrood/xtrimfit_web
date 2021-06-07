@@ -6,6 +6,9 @@ require_once('db/Customer.php');
 require_once('db/Invoice.php');
 require_once('db/Database.php');
 require_once('db/Pricing.php');
+require_once('db/Rate.php');
+require_once('db/Setting.php');
+require_once('db/Device.php');
 
 //use Database;
 //use User;
@@ -19,43 +22,83 @@ if (!isset($_SESSION['user'])) {
 }
 
 
-
 $_SESSION['active'] = 'list-setting';
 
-if($_SESSION['user']['role'] !== 'Administrateur'){
+if ($_SESSION['user']['role'] !== 'Administrateur') {
     header("location:list-invoice.php");
     die();
 }
 
-//$text = null;
-//$limit = 40;
-//$offset = 0;
-//
-//if (isset($_GET['invoice_id']) && !empty($_GET['invoice_id'])) {
-//
-//    $pricings = Pricing::getPricings();
-//
-//    if($_GET['invoice_id'] === 'new'){
-//        $invoice = json_decode(json_encode(new Invoice(0, Invoice::invoice_num(1, 7, 'XS1-'), 1, 1, $pricings[0]['price'], 0, 0, 0, $pricings[0]['price'], 'Paid', date('Y-m-d'),  date('Y-m-d'), date('Y-m-d'), '', date('Y-m-d H:i:s'))), true);
-//    }else{
-//        $invoice = Invoice::getById($_GET['invoice_id']);
-//    }
-//
-//
-//    if ($invoice === null) {
-//        header("location:index.php");
-//        die();
-//    }
-//
-//    $customer = Customer::getById($invoice['customer_id']);
-//
-////    var_dump($invoice);
-////    die();
-//
-//} else {
-//    header("location:index.php");
+$rates = Rate::getRates();
+$pricngs = Pricing::getPricings();
+$settings = Setting::getSettings();
+$devices = Device::getDevices();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $error = 1;
+    $message = "";
+
+//    var_dump($_POST);
 //    die();
-//}
+
+    if ($_POST['type'] === 'rate_change') {
+        Rate::update($_POST['rate_id'], '`value`', $_POST['value']);
+        $message = 'Taux ' . Rate::getById($_POST['rate_id'])['name'] . ' mis a jour !';
+    }
+
+    if ($_POST['type'] === 'pricing_change') {
+        Pricing::update($_POST['pricing_id'], '`name`', $_POST['name']);
+        Pricing::update($_POST['pricing_id'], 'price', $_POST['price']);
+        Pricing::update($_POST['pricing_id'], 'billing', $_POST['billing']);
+        $message = 'Plan ' . Pricing::getById($_POST['pricing_id'])['name'] . ' mis a jour !';
+    }
+    if ($_POST['type'] === 'setting_change') {
+        Setting::update($_POST['setting_id'], '`value`', $_POST['value']);
+        $message = 'Cle ' . Setting::getById($_POST['setting_id'])['setting'] . ' mise a jour !';
+    }
+
+    if ($_POST['type'] === 'save_rate') {
+        $save = Rate::insert(Rate::convertRowToObject($_POST));
+        if ($save) {
+            $message = 'Nouvelle devise sauvegardée avec succès';
+        } else {
+            $message = 'Impossible de sauvegarder cette nouvelle devise';
+            $error = 0;
+        }
+    }
+
+    if ($_POST['type'] === 'save_device') {
+
+//        var_dump($_POST);
+//        die();
+        $save = Device::insert(new Device(0, $_POST['device_name'], $_POST['fingerprint'], '', '', $_POST['created_at'], $_POST['updated_at']));
+        if ($save) {
+            $message = 'Nouvel appareil sauvegardée avec succès';
+        } else {
+            $message = 'Impossible de sauvegarder cet appareil !';
+            $error = 0;
+        }
+    }
+
+    if ($_POST['type'] === 'save_pricing') {
+
+        $save = Pricing::insert(Pricing::convertRowToObject($_POST));
+
+        if ($save) {
+            $message = 'Nouveau plan sauvegardée avec succès';
+        } else {
+            $message = 'Impossible de sauvegarder ce nouveau plan';
+            $error = 0;
+        }
+//        var_dump($save);
+//        die();
+
+    }
+
+
+    header('location:list-setting.php?message=' . $message . '&error=' . $error);
+    die();
+}
 
 
 ?>
@@ -89,140 +132,498 @@ include("parts/head.php");
         ?>
         <div class="container-fluid" id="print-div">
             <div class="row">
-                <div class="col-sm-12 align-content-center">
-                    <div class="iq-card ">
+                <div class="col-sm-12 col-lg-12">
+                    <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
-                            <div class="col-lg-6">
-                                <img src="images/logo.gif" class="img-fluid w-25" alt="">
-                            </div>
                             <div class="iq-header-title">
-                                <h4 class="card-title">Facture #<?= $invoice['invoice_number'] ?></h4>
-                                <?php if($_SESSION['user']['role'] === 'Administrateur' && $invoice['id'] > 0):?>
-                                    <br/>
-                                    <a  href="delete-invoice.php?invoice_id=<?= $invoice['id'] ?>" class="btn btn-primary pull-right"><i class="ri-delete-bin-line"></i> Supprimer</a>
-                                <?php endif;?>
+                                <h4 class="card-title">Paramètres</h4>
                             </div>
                         </div>
                         <div class="iq-card-body">
-                            <p></p>
-                            <form action="invoice/save-invoice.php" method="post">
-                                <input type="hidden" name="customer_id" class="form-control" id="exampleInputText1" value="<?= $invoice['customer_id'] ?>">
-                                <input type="hidden" name="id" class="form-control" id="exampleInputText1" value="<?= $invoice['id'] ?>">
-                                <input type="hidden" name="invoice_number" class="form-control" id="exampleInputText1" value="<?= $invoice['invoice_number'] ?>">
-                                <input type="hidden" name="created_at" class="form-control" id="exampleInputText1" value="<?= $invoice['created_at'] ?>">
-                                <input type="hidden" name="updated_at" class="form-control" id="exampleInputText1"
-                                       value="<?= date('Y-m-d') ?>">
-                                <input type="hidden" name="paid_date" class="form-control" id="exampleInputText1"
-                                       value="<?= date('Y-m-d') ?>">
-
-                                <div class="form-group">
-                                    <label for="exampleInputText1">Client </label>
-                                    <input type="text" disabled class="form-control" id="exampleInputText1"
-                                           value="<?= $customer['last_name'] . ' ' . $customer['first_name'] ?>">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <ul id="top-tabbar-vertical" class="p-0">
+                                        <li class="active" id="personal">
+                                            <a href="javascript:void();">
+                                                <i class="ri-bar-chart-fill text-primary"></i><span>Taux du jour</span>
+                                            </a>
+                                        </li>
+                                        <li id="contact">
+                                            <a href="javascript:void();">
+                                                <i class="ri-price-tag-3-line text-danger"></i><span>Plans</span>
+                                            </a>
+                                        </li>
+                                        <li id="official">
+                                            <a href="javascript:void();">
+                                                <i class="ri-lock-2-line text-success"></i><span>Fingerprint</span>
+                                            </a>
+                                        </li>
+                                        <li id="payment">
+                                            <a href="javascript:void();">
+                                                <i class="ri-device-line text-warning"></i><span>Appareils</span>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </div>
-                                <div class="form-group">
-                                    <label>Plan</label>
-                                    <select name="pricing_id" class="form-control mb-3">
-                                        <?php foreach ($pricings as $pricing): ?>
-                                            <?php if ((int)$customer['id'] !== 1): ?>
-                                                <?php if ((int)$pricing['id'] !== 1): ?>
-                                                    <option <?= ($pricing['id'] === $invoice['pricing_id']) ? 'selected="selected"' : '' ?> value="<?= $pricing['id'] ?>"><?= $pricing['name'] . ' / $' . number_format($pricing['price'], 2, '.', ',') ?></option>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <?php if ((int)$pricing['id'] === 1): ?>
-                                                    <option <?= ($pricing['id'] === $invoice['pricing_id']) ? 'selected="selected"' : '' ?> value="<?= $pricing['id'] ?>"><?= $pricing['name'] . ' / $' . number_format($pricing['price'], 2, '.', ',') ?></option>
-                                                <?php endif; ?>
-                                            <?php endif; ?>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
+                                <div class="col-md-9">
+                                    <div id="form-wizard3" class="text-center">
+                                        <!-- fieldsets -->
+                                        <fieldset>
+                                            <div class="form-card text-left">
+                                                <div class="row">
+                                                    <div class="col-10">
+                                                        <h3 class="mb-4">Devices:</h3>
+                                                    </div>
+                                                    <span class="float-right mb-3 mr-2">
+                                                                    <button href="#" data-toggle="modal"
+                                                                            data-target=".modal-add-rate"
+                                                                            class="btn btn-sm iq-bg-success"><i
+                                                                                class="ri-add-line"><span class="pl-1">Nouvelle devise</span></i>
+                                                                    </button>
+                                                     </span>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div>
 
-                                <div class="form-row">
-                                    <div class="col">
-                                        <label for="exampleInputText1">Du</label>
-                                        <input type="date" name="from_date" <?= ((int) $invoice['customer_id'] === 1) ? 'disabled' : '' ?> class="form-control" id="exampleInputdate"
-                                               value="<?= $invoice['from_date'] ?>">
+                                                            <table class="table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th scope="col" style="width: 40%;">Device</th>
+                                                                    <th scope="col" style="width: 40%;">Taux</th>
+                                                                    <th scope="col" style="width: 20%;">Action</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <?php foreach ($rates as $rate): ?>
+                                                                    <?php if ((int)$rate['id'] > 1): ?>
+                                                                        <tr>
+                                                                            <td><?= $rate['name'] . ' / USD' ?></td>
+                                                                            <form action="" method="post">
+
+                                                                                <td>
+                                                                                    <input type="hidden" name="rate_id"
+                                                                                           value="<?= $rate['id'] ?>">
+                                                                                    <input type="hidden" name="type"
+                                                                                           value="rate_change">
+                                                                                    <input type="number" step="0.01"
+                                                                                           class="form-control col-md-8"
+                                                                                           id="rate" name="value"
+                                                                                           value="<?= $rate['value'] ?>"
+                                                                                           placeholder="0.0"/>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <button class="btn btn-sm iq-bg-success">
+                                                                                        <i class="ri-save-line"></i>
+                                                                                    </button>
+                                                                                </td>
+                                                                            </form>
+                                                                        </tr>
+                                                                    <?php endif; ?>
+                                                                <?php endforeach; ?>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button id="submit" type="button" name="next"
+                                                    class="btn btn-primary next action-button float-right"
+                                                    value="Suivant">
+                                                Suivant
+                                            </button>
+                                        </fieldset>
+                                        <fieldset>
+                                            <div class="form-card text-left">
+                                                <div class="row">
+                                                    <div class="col-10">
+                                                        <h3 class="mb-4">Plans:</h3>
+                                                    </div>
+                                                    <span class="float-right mb-3 mr-2">
+                                                                    <button href="#" data-toggle="modal"
+                                                                            data-target=".modal-add-pricing"
+                                                                            class="btn btn-sm iq-bg-success"><i
+                                                                                class="ri-add-line"><span class="pl-1">Nouveau plan</span></i>
+                                                                    </button>
+                                                     </span>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div>
+
+                                                            <table class="table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th scope="col" style="width: 40%;">Nom</th>
+                                                                    <th scope="col" style="width: 20%;">Prix</th>
+                                                                    <th scope="col" style="width: 20%;">Type</th>
+                                                                    <th scope="col" style="width: 20%;">Action</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <?php foreach ($pricngs as $pricng): ?>
+                                                                    <tr>
+                                                                        <form action="" method="post">
+                                                                            <td>
+                                                                                <input type="text"
+                                                                                       class="form-control col-md-8"
+                                                                                       id="price" name="name"
+                                                                                       value="<?= $pricng['name'] ?>"
+                                                                                       placeholder="Bodybuilding standard"/>
+                                                                            </td>
+                                                                            <td>
+                                                                                <input type="hidden" name="pricing_id"
+                                                                                       value="<?= $pricng['id'] ?>">
+                                                                                <input type="hidden" name="type"
+                                                                                       value="pricing_change">
+                                                                                <input type="number" step="0.01"
+                                                                                       class="form-control col-md-8"
+                                                                                       id="price" name="price"
+                                                                                       value="<?= $pricng['price'] ?>"
+                                                                                       placeholder="0.0"/>
+                                                                            </td>
+                                                                            <td>
+                                                                                <select class="form-control"
+                                                                                        name="billing"
+                                                                                        id="exampleFormControlSelect1">
+                                                                                    <option <?= ($pricng['billing'] === 'abonnement') ? 'selected="selected"' : '' ?>
+                                                                                            value="abonnement">
+                                                                                        Abonnement
+                                                                                    </option>
+                                                                                    <option <?= ($pricng['billing'] === 'session') ? 'selected="selected"' : '' ?>
+                                                                                            value="session">Session
+                                                                                    </option>
+                                                                                </select>
+                                                                            </td>
+                                                                            <td>
+                                                                                <button class="btn btn-sm iq-bg-success">
+                                                                                    <i class="ri-save-line"></i>
+                                                                                </button>
+                                                                                <a href="#"
+                                                                                   onclick="alertDelete('<?= $pricng['name'] ?>', '<?= $pricng['id'] ?>', 'pricing_change')"
+                                                                                   class="btn btn-sm iq-bg-danger"><i
+                                                                                            class="ri-delete-bin-line"></i></a>
+                                                                            </td>
+                                                                        </form>
+                                                                    </tr>
+                                                                <?php endforeach; ?>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="button" name="next"
+                                                    class="btn btn-primary next action-button float-right"
+                                                    value="Suivant">
+                                                Suivant
+                                            </button>
+                                            <button type="button" name="previous"
+                                                    class="btn btn-dark previous action-button-previous float-right mr-3"
+                                                    value="Precedent">Précédent
+                                            </button>
+                                        </fieldset>
+                                        <fieldset>
+                                            <div class="form-card text-left">
+                                                <div class="row">
+                                                    <div class="col-10">
+                                                        <h3 class="mb-4">Clés:</h3>
+                                                    </div>
+                                                    <span class="float-right mb-3 mr-2">
+                                                                    <button data-toggle="modal"
+                                                                            data-target=".modal-add-setting" href="#"
+                                                                            class="btn btn-sm iq-bg-success"><i
+                                                                                class="ri-add-line"><span class="pl-1">Nouvelle clé</span></i>
+                                                                    </button>
+                                                     </span>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div>
+
+                                                            <table class="table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th scope="col" style="width: 40%;">Clé</th>
+                                                                    <th scope="col" style="width: 40%;">valeur</th>
+                                                                    <th scope="col" style="width: 20%;">Action</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <?php foreach ($settings as $setting): ?>
+                                                                    <tr>
+                                                                        <form action="" method="post">
+                                                                            <td><?= $setting['setting'] ?></td>
+                                                                            <td>
+                                                                                <input type="hidden" name="setting_id"
+                                                                                       value="<?= $setting['id'] ?>">
+                                                                                <input type="hidden" name="type"
+                                                                                       value="setting_change">
+                                                                                <input type="text"
+                                                                                       class="form-control col-md-8"
+                                                                                       id="price" name="value"
+                                                                                       value="<?= $setting['value'] ?>"
+                                                                                       placeholder=""/>
+                                                                            </td>
+                                                                            <td>
+                                                                                <button class="btn btn-sm iq-bg-success">
+                                                                                    <i class="ri-save-line"></i>
+                                                                                </button>
+                                                                                <a href="#"
+                                                                                   onclick="alertDelete('<?= $setting['setting'] ?>', '<?= $setting['id'] ?>', 'setting_change')"
+                                                                                   class="btn btn-sm iq-bg-danger"><i
+                                                                                            class="ri-delete-bin-line"></i></a>
+                                                                            </td>
+                                                                        </form>
+                                                                    </tr>
+                                                                <?php endforeach; ?>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="button" name="next"
+                                                    class="btn btn-primary next action-button float-right"
+                                                    value="Suivant">Suivant
+                                            </button>
+                                            <button type="button" name="previous"
+                                                    class="btn btn-dark previous action-button-previous float-right mr-3"
+                                                    value="Precedent">Précédent
+                                            </button>
+                                        </fieldset>
+                                        <fieldset>
+                                            <div class="form-card text-left">
+                                                <div class="row">
+                                                    <div class="col-10">
+                                                        <h3 class="mb-4 text-left">Appareils autorisés:</h3>
+                                                    </div>
+                                                    <span class="float-right mb-3 mr-2">
+                                                                    <button data-toggle="modal"
+                                                                            data-target=".modal-add-device" href="#"
+                                                                            class="btn btn-sm iq-bg-success"><i
+                                                                                class="ri-add-line"><span class="pl-1">Nouvel appareil</span></i>
+                                                                    </button>
+                                                     </span>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div>
+
+                                                            <table class="table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th scope="col" style="width: 40%;">Nom</th>
+                                                                    <th scope="col" style="width: 40%;">UID</th>
+                                                                    <th scope="col" style="width: 20%;">Action</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <?php foreach ($devices as $device): ?>
+                                                                    <tr>
+                                                                        <td><?= $device['device_name'] ?></td>
+                                                                        <td><?= $device['fingerprint'] ?></td>
+
+                                                                        <td>
+                                                                            <button class="btn btn-sm iq-bg-danger">
+                                                                                <i class="ri-delete-bin-3-line"></i>
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                <?php endforeach; ?>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <!--                                            <a class="btn btn-primary action-button float-right"-->
+                                            <!--                                               href="form-wizard-vertical.html">Submit</a>-->
+                                            <button type="button" name="previous"
+                                                    class="btn btn-dark previous action-button-previous float-right mr-3"
+                                                    value="Précédent">Précédent
+                                            </button>
+                                        </fieldset>
                                     </div>
-                                    <div class="col">
-                                        <label for="exampleInputText1">Au</label>
-                                        <input type="date" name="to_date" <?= ((int) $invoice['customer_id'] === 1) ? 'disabled' : '' ?> class="form-control" id="exampleInputdate"
-                                               value="<?= $invoice['to_date'] ?>">
-                                    </div>
                                 </div>
-                                <br/>
-                                <hr/>
-
-                                <div class="form-row">
-                                    <div class="col">
-                                        <label for="exampleInputText1">Prix de base (USD)</label>
-                                        <input type="number" name="price" value="<?= $invoice['price'] ?>"
-                                               class="form-control" <?= ((int) $invoice['customer_id'] === 1) ? 'disabled' : '' ?> placeholder="0.00">
-                                    </div>
-                                    <div class="col">
-                                        <label for="exampleInputText1">Taxe (%)</label>
-                                        <input type="number" name="taxe_percentage"
-                                               value="<?= $invoice['taxe_percentage'] ?>" class="form-control"
-                                               placeholder="0.0">
-                                    </div>
-                                </div>
-                                <br/>
-                                <div class="form-row">
-                                    <div class="col">
-                                        <label for="exampleInputText1">Frais additionnel (USD)</label>
-                                        <input type="number" name="fees" value="<?= $invoice['fees'] ?>"
-                                               class="form-control" placeholder="0.00">
-                                    </div>
-                                    <div class="col">
-                                        <label for="exampleInputText1">Rabais (%)</label>
-                                        <input type="number" name="discount_percentage"
-                                               value="<?= $invoice['discount_percentage'] ?>" class="form-control"
-                                               placeholder="0.0">
-                                    </div>
-                                </div>
-
-                                <br/>
-                                <hr/>
-
-                                <div class="form-group">
-                                    <label>Status</label>
-                                    <select name="status" <?= ((int) $invoice['customer_id'] === 1) ? 'disabled' : '' ?> class="form-control mb-3">
-                                        <?php foreach (Constants::getInvoiceStatus() as $status): ?>
-                                            <option <?= ($status === $invoice['status']) ? 'selected="selected"' : '' ?>
-                                                value="<?= $status ?>"><?= $status ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="exampleInputEmail3">Total</label>
-                                    <input type="number" name="total" disabled class="form-control"
-                                           value="<?= $invoice['total'] ?>" id="exampleInputEmail3" placeholder="0.0">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="exampleInputEmail3">Commentaire</label>
-                                    <input type="text" name="comment" class="form-control"
-                                           value="<?= $invoice['comment'] ?>" id="exampleInputEmail3" placeholder="Cheque #...">
-                                </div>
-
-                                <br/>
-                                <hr/>
-                                <?php if($invoice['status'] === 'Paid'):?>
-
-                                    <img src="images/paid_stamp.png" class="img-fluid w-25" alt="" style="position: relative; left: 60%;" >
-
-                                    <br/>
-                                <?php endif;?>
-
-                                <?php if($invoice['status'] !== 'Paid' || (int) $invoice['id'] === 0):?>
-                                    <button type="submit" class="btn btn-primary">Enregistrer</button>
-                                <?php endif;?>
-                                <a href="list-invoice.php" class="btn iq-bg-secondary">Annuler</a>
-                                <a href="#" onclick="PrintElem()" class="btn iq-bg-danger pull-right"><i
-                                        class="ri-printer-line"></i>Imprimer</a>
-                            </form>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Large modal -->
+            <!--            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".modal-add-rate">Large modal</button>-->
+            <div class="modal fade modal-add-rate" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <form method="post" action="">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Nouvelle devise</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Veuillez remplir ce formulaire pour enregistrer une nouvelle devise.</p>
+                                <div class="row">
+                                    <div class="col">
+                                        <input type="text" required class="form-control" minlength="3" maxlength="3"
+                                               name="name"
+                                               placeholder="Abbreviation: HTG, PES, CAD....">
+                                        <input type="hidden" name="type" value="save_rate" class="form-control"
+                                               placeholder="">
+                                        <input type="hidden" name="id" value="0" class="form-control" placeholder="">
+                                        <input type="hidden" name="created_at" value="<?= date('Y-m-d H:i:s') ?>"
+                                               class="form-control" placeholder="">
+                                        <input type="hidden" name="updated_at" value="<?= date('Y-m-d H:i:s') ?>"
+                                               class="form-control" placeholder="">
+                                    </div>
+                                    <div class="col">
+                                        <input type="number" required name="value" class="form-control"
+                                               placeholder="Valeur en USD">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <a type="button" style="color: white;" class="btn btn-secondary" data-dismiss="modal">Fermer</a>
+                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal fade modal-add-pricing" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <form method="post" action="">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Nouveau plan</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Veuillez remplir ce formulaire pour enregistrer un nouveau plan.</p>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <input type="text" required name="name" class="form-control" placeholder="Nom">
+                                        <input type="hidden" name="type" value="save_pricing" class="form-control"
+                                               placeholder="Nom">
+                                        <input type="hidden" name="id" value="0" class="form-control" placeholder="">
+                                        <input type="hidden" name="created_at" value="<?= date('Y-m-d H:i:s') ?>"
+                                               class="form-control" placeholder="">
+                                        <input type="hidden" name="updated_at" value="<?= date('Y-m-d H:i:s') ?>"
+                                               class="form-control" placeholder="">
+                                    </div>
+                                    <div class="col">
+                                        <input type="number" name="price"
+                                               step="0.01" class="form-control" required placeholder="Prix (USD)">
+                                    </div>
+                                    <div class="col">
+                                        <select class="form-control" name="billing" id="exampleFormControlSelect1">
+                                            <option value="abonnement">Abonnement</option>
+                                            <option value="session">Session</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <a type="button" style="color: white;" class="btn btn-secondary" data-dismiss="modal">Fermer</a>
+                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal fade modal-add-setting" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <form method="post" action="">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Nouvelle cle</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Veuillez remplir ce formulaire pour enregistrer un nouveau cle.</p>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <input type="text" required class="form-control" name="setting"
+                                               placeholder="cle">
+                                        <input type="hidden" name="type" value="save_setting" class="form-control"
+                                               placeholder="">
+                                        <input type="hidden" name="id" value="0" class="form-control" placeholder="">
+                                        <input type="hidden" name="created_at" value="<?= date('Y-m-d H:i:s') ?>"
+                                               class="form-control" placeholder="">
+                                        <input type="hidden" name="updated_at" value="<?= date('Y-m-d H:i:s') ?>"
+                                               class="form-control" placeholder="">
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" required name="value" class="form-control"
+                                               placeholder="valeur">
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <a type="button" style="color: white;" class="btn btn-secondary" data-dismiss="modal">Fermer</a>
+                                <button type="button" class="btn btn-primary">Enregistrer</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal fade modal-add-device" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <form method="post" action="">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Autorisé un appareil</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Veuillez remplir ce formulaire pour utorisé un nouvel appareil.</p>
+
+                                <div class="row">
+                                    <div class="col">
+                                        <input type="text" required class="form-control" name="device_name"
+                                               placeholder="Nom">
+                                        <input type="hidden" name="type" value="save_device" class="form-control"
+                                               placeholder="">
+                                        <input type="hidden" name="id" value="0" class="form-control" placeholder="">
+                                        <input type="hidden" name="browser_fingerprint" value="null"
+                                               class="form-control" placeholder="">
+                                        <input type="hidden" name="user_browser" value="null" class="form-control"
+                                               placeholder="">
+                                        <input type="hidden" name="user_system_info_full" value="null"
+                                               class="form-control" placeholder="">
+                                        <input type="hidden" name="created_at" value="<?= date('Y-m-d H:i:s') ?>"
+                                               class="form-control" placeholder="">
+                                        <input type="hidden" name="updated_at" value="<?= date('Y-m-d H:i:s') ?>"
+                                               class="form-control" placeholder="">
+                                    </div>
+                                    <div class="col">
+                                        <input type="text" required name="fingerprint" class="form-control"
+                                               placeholder="UID">
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="modal-footer">
+                                <a type="button" style="color: white;" class="btn btn-secondary" data-dismiss="modal">Fermer</a>
+                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -230,21 +631,9 @@ include("parts/head.php");
 </div>
 <!-- Wrapper END -->
 <!-- Footer -->
-<footer class="bg-white iq-footer">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-6">
-                <ul class="list-inline mb-0">
-                    <li class="list-inline-item"><a href="privacy-policy.html">Privacy Policy</a></li>
-                    <li class="list-inline-item"><a href="terms-of-service.html">Terms of Use</a></li>
-                </ul>
-            </div>
-            <div class="col-lg-6 text-right">
-                Copyright 2020 <a href="#">Vito</a> All Rights Reserved.
-            </div>
-        </div>
-    </div>
-</footer>
+<?php
+include("parts/footer.php");
+?>
 <!-- Footer END -->
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -278,6 +667,7 @@ include("parts/head.php");
 <script src="js/chart-custom.js"></script>
 <!-- Custom JavaScript -->
 <script src="js/custom.js"></script>
+<script src="js/alert.js"></script>
 
 <script>
     function PrintElem() {
@@ -296,6 +686,19 @@ include("parts/head.php");
 
         return true;
     }
+
+
+    function alertDelete(name, id, type) {
+        if (!confirm('Supprimer ' + name + ' ?')) {
+            return false;
+        }
+
+    }
+
+    $(function () {
+
+
+    });
 </script>
 </body>
 </html>

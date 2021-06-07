@@ -13,7 +13,7 @@ require_once('../db/User.php');
 
 
 $message = 'Utilisateur sauvegardé';
-$error = false;
+$error = 1;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $uploaddir = '../images/user/';

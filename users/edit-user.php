@@ -12,7 +12,7 @@ require_once('../db/User.php');
 <?php
 
 $message = 'Utilisateur sauvegardé';
-$error = false;
+$error = 1;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $temp = User::getById($_POST['id']);

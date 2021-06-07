@@ -11,7 +11,7 @@ require_once('../db/Customer.php');
 
 <?php
 
-$error = false;
+$error = 1;
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -38,10 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = Customer::insert($new_customer);
 
     if((int) $result === 1){
-        $error = false;
+        $error = 1;
         $message = "Client sauvegardé";
     }else{
-        $error = true;
+        $error = 0;
         $message = "Impossible d'enregistre le client";
 
     }

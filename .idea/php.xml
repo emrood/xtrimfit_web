@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpspec/prophecy" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/psr/cache" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpstan/phpstan" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/composer" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpdocumentor/reflection-docblock" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/pdepend/pdepend" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpunit/phpunit" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/doctrine/instantiator" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/polyfill-php72" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/doctrine/event-manager" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/polyfill-php73" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/doctrine/inflector" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/doctrine/collections" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/options-resolver" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/doctrine/cache" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/squizlabs/php_codesniffer" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/webmozart/assert" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/doctrine/persistence" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/kylekatarnls/multi-tester" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/stopwatch" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/filesystem" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpstan/extension-installer" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpunit/php-timer" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpunit/php-text-template" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/config" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpunit/php-file-iterator" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/doctrine/deprecations" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpdocumentor/type-resolver" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/psr/event-dispatcher" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/translation" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpdocumentor/reflection-common" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/dependency-injection" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/event-dispatcher-contracts" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpunit/php-token-stream" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/doctrine/dbal" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpunit/php-code-coverage" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/doctrine/annotations" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/code-unit-reverse-lookup" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/symfony/translation-contracts" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/theseer/tokenizer" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/doctrine/lexer" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/myclabs/deep-copy" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phpmd/phpmd" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/global-state" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/comparator" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/friendsofphp/php-cs-fixer" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/recursion-context" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/object-enumerator" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/environment" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/exporter" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phar-io/version" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/type" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/object-reflector" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/phar-io/manifest" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/resource-operations" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/php-cs-fixer/diff" />
+      <path value="$PROJECT_DIR$/Carbon/vendor/sebastian/version" />
+    </include_path>
+  </component>
+  <component name="PhpUnit">
+    <phpunit_settings>
+      <PhpUnitSettings load_method="CUSTOM_LOADER" custom_loader_path="$PROJECT_DIR$/Carbon/vendor/autoload.php" />
+    </phpunit_settings>
+  </component>
+</project>

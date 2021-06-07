@@ -10,6 +10,7 @@ require_once('Constants.php');
 require_once('Database.php');
 //require_once('Pricing.php');
 require_once('Customer.php');
+require_once('CashFund.php');
 
 
 class Invoice implements \JsonSerializable
@@ -24,6 +25,7 @@ class Invoice implements \JsonSerializable
     private $taxe_percentage;
     private $fees;
     private $total;
+    private $rate;
     private $status;
     private $from_date;
     private $paid_date;
@@ -31,6 +33,7 @@ class Invoice implements \JsonSerializable
     private $comment;
     private $created_at;
     private $updated_at;
+    private $rate_id;
 
     /**
      * Invoice constructor.
@@ -49,7 +52,7 @@ class Invoice implements \JsonSerializable
      * @param $comment
      * @param $created_at
      */
-    public function __construct($id, $invoice_number, $customer_id, $pricing_id, $price, $discount_percentage, $taxe_percentage, $fees, $total, $status, $from_date, $paid_date, $to_date, $comment, $created_at)
+    public function __construct($id, $invoice_number, $customer_id, $pricing_id, $price, $discount_percentage, $taxe_percentage, $fees, $total, $status, $from_date, $paid_date, $to_date, $comment, $created_at, $rate_id, $rate)
     {
         $this->id = (int) $id;
         $this->invoice_number = $invoice_number;
@@ -67,6 +70,8 @@ class Invoice implements \JsonSerializable
         $this->comment = $comment;
         $this->created_at = $created_at;
         $this->updated_at = $created_at;
+        $this->rate_id = (int) $rate_id;
+        $this->rate = (double) $rate;
     }
 
 
@@ -94,6 +99,58 @@ class Invoice implements \JsonSerializable
         $data = $database->executeQuery($query);
 
 //        var_dump($data);
+
+        $result = array();
+        while ($row = mysqli_fetch_array($data, MYSQLI_ASSOC)) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
+
+    public static function filter($text = null, $limit = null, $offset = null, $from_date = null, $to_date = null)
+    {
+        $database = self::getConnection();
+
+        $query = 'SELECT * FROM cash_funds ORDER BY created_at ASC';
+        $params = null;
+
+        $l = 40;
+        $o = 0;
+
+        $from = date('Y-m-d', strtotime('-1 month', strtotime(date('Y-m-d'))));
+        $to = date('Y-m-d');
+
+        if ($limit !== null) {
+            $l = $limit;
+        }
+
+        if ($offset !== null) {
+            $o = $offset;
+        }
+
+
+        if($from_date !== null){
+            $from = $from_date;
+        }
+
+        if($to_date !== null){
+            $to = $to_date;
+        }
+
+
+        if ($text !== null && !empty($text)) {
+            $query = 'SELECT * FROM invoices WHERE invoice_number lIKE "%' . $text . '%" ORDER BY id DESC LIMIT ' . $limit . ' OFFSET ' . $offset;
+        }else{
+            $query = 'SELECT * FROM invoices WHERE DATE(created_at) >= DATE("'.$from.' 00:00:00") AND DATE(created_at) <= DATE("'.$to.' 23:59:59") ORDER BY id DESC LIMIT ' . $l . ' OFFSET '.$o;
+        }
+
+
+
+        $data = $database->executeQuery($query);
+//        var_dump('<br/>'.$query.'<br/>');
+//        var_dump($data);
+//        die();
 
         $result = array();
         while ($row = mysqli_fetch_array($data, MYSQLI_ASSOC)) {
@@ -347,7 +404,9 @@ class Invoice implements \JsonSerializable
             $row['paid_date'],
             $row['to_date'],
             $row['comment'],
-            $row['created_at']
+            $row['created_at'],
+            $row['rate_id'],
+            $row['rate']
         );
     }
 
@@ -355,20 +414,40 @@ class Invoice implements \JsonSerializable
     {
 
         try {
+
+//            var_dump('<br/> saving cash... <br/>')
+
             $database = self::getConnection();
 //            var_dump("IN_INSERT </br>");
-            $database->executeQuery('INSERT INTO invoices (invoice_number, customer_id, pricing_id, price, discount_percentage, taxe_percentage, fees, total, status, from_date, paid_date, to_date, comment, created_at, updated_at) VALUES ("?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?", "?")',
-                array($invoice->invoice_number, $invoice->customer_id, $invoice->pricing_id, $invoice->price, $invoice->discount_percentage, $invoice->taxe_percentage, $invoice->fees, $invoice->total, $invoice->status, $invoice->from_date, $invoice->paid_date, $invoice->to_date, $invoice->comment, $invoice->created_at, $invoice->updated_at));
+            $database->executeQuery("INSERT INTO invoices (invoice_number, customer_id, pricing_id, price, discount_percentage, taxe_percentage, fees, total, status, from_date, paid_date, to_date, comment, created_at, updated_at, rate_id, rate) VALUES ('?', ?, ?, ?, ?, ?, ?, ?, '?', '?', '?', '?', '?', '?', '?', ?, ?)",
+                array($invoice->invoice_number, $invoice->customer_id, $invoice->pricing_id, $invoice->price, $invoice->discount_percentage, $invoice->taxe_percentage, $invoice->fees, $invoice->total, $invoice->status, $invoice->from_date, $invoice->paid_date, $invoice->to_date, $invoice->comment, $invoice->created_at, $invoice->updated_at, $invoice->rate_id, $invoice->rate));
 
-            if($invoice->status === 'Paid' && $invoice > 1){
-                $temp_c = Customer::getById($invoice);
-                $temp_p = Pricing::getById($temp_c['pricing_id']);
+            if($invoice->status === 'Paid'){
 
-                if(!empty($temp_c) && !empty($temp_p)){
-                    $invoice_number = Invoice::invoice_num($temp_c['id'], 7, 'XF'.$temp_c['id'].'-');
-                    $database->executeQuery('INSERT INTO invoices (invoice_number, pricing_id, customer_id, price, total, from_date, to_date, created_at, updated_at) VALUES ("?", "?", "?", "?", "?", "?", "?", "?", "?")',
-                        array($invoice_number, $temp_c['pricing_id'], $temp_c['id'], $temp_p['price'], $temp_p['price'], $invoice->to_date, date('Y-m-d', strtotime('+1 month', strtotime($invoice->to_date))), date('Y-m-d'), date('Y-m-d')));
+                if($invoice->customer_id > 1){
+                    // REGISTER NEXT INVOICE
+                    $temp_c = Customer::getById($invoice);
+                    $temp_p = Pricing::getById($temp_c['pricing_id']);
+
+                    if(!empty($temp_c) && !empty($temp_p)){
+                        $invoice_number = Invoice::invoice_num($temp_c['id'], 7, 'XF'.$temp_c['id'].'-');
+                        $database->executeQuery("INSERT INTO invoices (invoice_number, pricing_id, customer_id, price, total, from_date, to_date, created_at, updated_at) VALUES ('?', ?, ?, ?, ?, '?', '?', '?', '?')",
+                            array($invoice_number, $temp_c['pricing_id'], $temp_c['id'], $temp_p['price'], $temp_p['price'], $invoice->to_date, date('Y-m-d', strtotime('+1 month', strtotime($invoice->to_date))), date('Y-m-d H:i:s'), date('Y-m-d H:i:s')));
+                    }
                 }
+
+                // UPDATE CASH FUND
+                // REGISTER TRANSACTION
+                $last_transaction = CashFund::getLastTransaction((int) $invoice->rate_id);
+                $amount = $invoice->total * $invoice->rate;
+                if($last_transaction !== null){
+                    $balance = $last_transaction['balance'] + $amount;
+                }else{
+                    $balance = $amount;
+                }
+
+                CashFund::insert(new CashFund(0, $invoice->rate_id, $amount, $balance, $invoice->invoice_number, 'Depot', date('Y-m-d H:i:s'), date('Y-m-d H:i:s')));
+
             }
         } catch (Exception $e) {
             var_dump($e->getMessage());
@@ -389,19 +468,36 @@ class Invoice implements \JsonSerializable
 //            var_dump($invoice);
 //            die();
 
-            $database->executeQuery('UPDATE invoices SET pricing_id = "?", price = "?", discount_percentage = "?", taxe_percentage = "?", fees = "?", total = "?", status = "?", paid_date = "?", comment = "?" WHERE id = "?"',
-                array($invoice->pricing_id, $invoice->price, $invoice->discount_percentage, $invoice->taxe_percentage, $invoice->fees, $invoice->total, $invoice->status, $invoice->paid_date, $invoice->comment,  $invoice->id));
+            $database->executeQuery("UPDATE invoices SET pricing_id = ?, price = ?, discount_percentage = ?, taxe_percentage = ?, fees = ?, total = ?, status = '?', rate = '?',paid_date = '?', comment = '?', rate_id = ? WHERE id = ?",
+                array($invoice->pricing_id, $invoice->price, $invoice->discount_percentage, $invoice->taxe_percentage, $invoice->fees, $invoice->total, $invoice->status, $invoice->rate,$invoice->paid_date, $invoice->comment,  $invoice->rate_id, $invoice->id));
 
 
-            if($invoice->status === 'Paid' && $invoice->customer_id > 1){
-                $temp_c = Customer::getById($invoice->customer_id);
-                $temp_p = Pricing::getById($temp_c['pricing_id']);
+            if($invoice->status === 'Paid'){
 
-                if(!empty($temp_c) && !empty($temp_p)){
-                    $invoice_number = Invoice::invoice_num($temp_c['id'], 7, 'XF'.$temp_c['id'].'-');
-                    $database->executeQuery('INSERT INTO invoices (invoice_number, pricing_id, customer_id, price, total, from_date, to_date, created_at, updated_at) VALUES ("?", "?", "?", "?", "?", "?", "?", "?", "?")',
-                        array($invoice_number, $temp_c['pricing_id'], $temp_c['id'], $temp_p['price'], $temp_p['price'], $invoice->to_date, date('Y-m-d', strtotime('+1 month', strtotime($invoice->to_date))), date('Y-m-d'), date('Y-m-d')));
+                if($invoice->customer_id > 1){
+                    // REGISTER NEXT INVOICE
+                    $temp_c = Customer::getById($invoice);
+                    $temp_p = Pricing::getById($temp_c['pricing_id']);
+
+                    if(!empty($temp_c) && !empty($temp_p)){
+                        $invoice_number = Invoice::invoice_num($temp_c['id'], 7, 'XF'.$temp_c['id'].'-');
+                        $database->executeQuery("INSERT INTO invoices (invoice_number, pricing_id, customer_id, price, total, from_date, to_date, created_at, updated_at) VALUES ('?', ?, ?, ?, ?, '?', '?', '?', '?')",
+                            array($invoice_number, $temp_c['pricing_id'], $temp_c['id'], $temp_p['price'], $temp_p['price'], $invoice->to_date, date('Y-m-d', strtotime('+1 month', strtotime($invoice->to_date))), date('Y-m-d H:i:s'), date('Y-m-d H:i:s')));
+                    }
                 }
+
+                // UPDATE CASH FUND
+                // REGISTER TRANSACTION
+                $last_transaction = CashFund::getLastTransaction((int) $invoice->rate_id);
+                $amount = $invoice->total * $invoice->rate;
+                if($last_transaction !== null){
+                    $balance = $last_transaction['balance'] + $amount;
+                }else{
+                    $balance = $amount;
+                }
+
+                CashFund::insert(new CashFund(0, $invoice->rate_id, $amount, $balance, $invoice->invoice_number, 'Depot', date('Y-m-d H:i:s'), date('Y-m-d H:i:s')));
+
             }
 
         } catch (Exception $e) {
@@ -414,9 +510,11 @@ class Invoice implements \JsonSerializable
 
     public static function update($Id, $olumn, $value)
     {
-        self::getConnection()->executeQuery("UPDATE invoices SET " . $olumn . " = ? WHERE id = ?", array($value, $Id));
-
-
+        if(is_string($value)){
+            self::getConnection()->executeQuery("UPDATE invoices SET " . $olumn . " = '?' WHERE id = ?", array($value, $Id));
+        }else{
+            self::getConnection()->executeQuery("UPDATE invoices SET " . $olumn . " = ? WHERE id = ?", array($value, $Id));
+        }
     }
 
     public static function invoice_num($customer_id, $pad_len = 7, $prefix = null)
