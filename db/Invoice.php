@@ -476,14 +476,26 @@ class Invoice implements \JsonSerializable
 
                 if($invoice->customer_id > 1){
                     // REGISTER NEXT INVOICE
-                    $temp_c = Customer::getById($invoice);
+                    $temp_c = Customer::getById($invoice->customer_id);
                     $temp_p = Pricing::getById($temp_c['pricing_id']);
 
                     if(!empty($temp_c) && !empty($temp_p)){
+
+
+
                         $invoice_number = Invoice::invoice_num($temp_c['id'], 7, 'XF'.$temp_c['id'].'-');
-                        $database->executeQuery("INSERT INTO invoices (invoice_number, pricing_id, customer_id, price, total, from_date, to_date, created_at, updated_at) VALUES ('?', ?, ?, ?, ?, '?', '?', '?', '?')",
-                            array($invoice_number, $temp_c['pricing_id'], $temp_c['id'], $temp_p['price'], $temp_p['price'], $invoice->to_date, date('Y-m-d', strtotime('+1 month', strtotime($invoice->to_date))), date('Y-m-d H:i:s'), date('Y-m-d H:i:s')));
+                        $database->executeQuery("INSERT INTO invoices (invoice_number, status, pricing_id, customer_id, price, total, from_date, to_date, created_at, updated_at) VALUES ('?', '?', ?, ?, ?, ?, '?', '?', '?', '?')",
+                            array($invoice_number, 'Pending', $temp_c['pricing_id'], $temp_c['id'], $temp_p['price'], $temp_p['price'], $invoice->to_date, date('Y-m-d', strtotime('+1 month', strtotime($invoice->to_date))), date('Y-m-d H:i:s'), date('Y-m-d H:i:s')));
+
+
                     }
+
+//                    var_dump($temp_c);
+//                    var_dump($temp_p);
+//                    die();
+
+
+
                 }
 
                 // UPDATE CASH FUND
