@@ -133,9 +133,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <!--</div>-->
                         <div class="form-group" style="display: flex; margin-top: 50px;">
                             <input type="text" name="browser_fp" disabled id="finger-id" class="form-control finger_id"
-                                   style="width: 60%"/>
-                            <button class="btn btn-info" style="margin-left: 10px;"><i class="ri ri-safe-line"></i>
-                            </button>
+                                   style="width: 60%; margin-left: 10%"/>
+<!--                            <i class="ri ri-device-line"></i>-->
+                            <a href="#" onclick="copyDeviceId()" class="btn btn-outline-dark" style="margin-left: 10px;"><i class="fa fa-copy"></i>
+                            </a>
                             <input type="hidden" name="user_timezone" id="user-timezone"/>
                             <input type="hidden" name="user_system_info" id="user-system-info"/>
                             <input type="hidden" name="user_system_info_full" id="user-system-info-full"/>
@@ -332,6 +333,21 @@ function initFingerprintJS() {
         } else {
             return navigator.userAgent
         }
+    }
+
+    function copyDeviceId() {
+        /* Get the text field */
+        var copyText = document.getElementById("finger-id");
+
+        /* Select the text field */
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); /* For mobile devices */
+
+        /* Copy the text inside the text field */
+        document.execCommand("copy");
+
+        /* Alert the copied text */
+        // alert("Copied the text: " + copyText.value);
     }
 </script>
 </body>
