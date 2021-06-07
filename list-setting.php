@@ -155,12 +155,12 @@ include("parts/head.php");
                                         </li>
                                         <li id="official">
                                             <a href="javascript:void();">
-                                                <i class="ri-lock-2-line text-success"></i><span>Fingerprint</span>
+                                                <i class="fa fa-fingerprint text-success"></i><span>Fingerprint</span>
                                             </a>
                                         </li>
                                         <li id="payment">
                                             <a href="javascript:void();">
-                                                <i class="ri-device-line text-warning"></i><span>Appareils</span>
+                                                <i class="ri-device-line text-info"></i><span>Appareils</span>
                                             </a>
                                         </li>
                                     </ul>

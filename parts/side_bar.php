@@ -47,7 +47,7 @@
                                     class="ri-list-check"></i><span>Rapports</span><i
                                     class="ri-arrow-right-s-line iq-arrow-right"></i></a>
                         <ul id="icons" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
-                            <li><a href="#"><i class="ri-stack-line"></i>In-N-Out</a></li>
+                            <li><a href="#"><i class="fa fa-fingerprint"></i>In-N-Out</a></li>
 <!--                            <li><a href="#"><i class="ri-stack-line"></i>Rapport 2</a></li>-->
 <!--                            <li><a href="#"><i class="ri-stack-line"></i>Rapport 3</a></li>-->
                         </ul>
@@ -260,4 +260,5 @@
         </nav>
         <div class="p-3"></div>
     </div>
+    <script src="js/fas.js" crossorigin="anonymous"></script>
 </div>

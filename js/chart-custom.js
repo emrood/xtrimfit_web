@@ -5921,7 +5921,7 @@ if (jQuery("#home-chart-01").length) {
 	options = {
 		series: [{
 			name: "Desktops",
-			data: [5, 10, 8, 15]
+			data: [0, 0, 0, 0]
 		}],
 		chart: {
 			height: 150,
@@ -5944,7 +5944,7 @@ if (jQuery("#home-chart-01").length) {
 			}
 		},
 		xaxis: {
-			categories: ["Jan", "Feb", "Mar", "Apr"]
+			categories: ["Juin", "Juil", "Aout", "Sept"]
 		}
 	};
 	(chart = new ApexCharts(document.querySelector("#home-chart-01"), options)).render()
@@ -5953,10 +5953,10 @@ if (jQuery("#home-chart-02").length) {
 	options = {
 		series: [{
 			name: "Net Profit",
-			data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
+			data: [0, 0, 0, 0, 0]
 		}, {
 			name: "Revenue",
-			data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
+			data: [0, 0, 0, 0, 0]
 		}],
 		chart: {
 			type: "bar",
@@ -5979,7 +5979,7 @@ if (jQuery("#home-chart-02").length) {
 			colors: ["transparent"]
 		},
 		xaxis: {
-			categories: ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct"]
+			categories: [ "Jun", "Jul", "Aug", "Sep", "Oct"]
 		},
 		yaxis: {},
 		fill: {
