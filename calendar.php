@@ -4,6 +4,7 @@
 require_once('db/User.php');
 require_once('db/Database.php');
 require_once('db/Customer.php');
+require_once('db/Rooms.php');
 require_once('db/Constants.php');
 
 //use Database;
@@ -25,6 +26,8 @@ if (isset($_GET['user_id'])) {
 //    die();
 }
 
+$rooms = Rooms::getRooms();
+$customers = Customer::getCustomers(1000, 0);
 
 
 
@@ -57,15 +60,15 @@ include("parts/head.php");
         <div class="container-fluid">
             <div class="row row-eq-height">
                 <div class="col-md-3">
-                    <div class="iq-card calender-small">
-                        <div class="iq-card-body">
-                            <input type="text" class="flatpicker d-none">
-                        </div>
-                    </div>
+<!--                    <div class="iq-card calender-small">-->
+<!--                        <div class="iq-card-body">-->
+<!--                            <input type="text" class="flatpicker d-none">-->
+<!--                        </div>-->
+<!--                    </div>-->
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
-                                <h4 class="card-title ">Classification</h4>
+                                <h4 class="card-title ">Salle disponible</h4>
                             </div>
 
                             <div class="iq-card-header-toolbar d-flex align-items-center">
@@ -74,29 +77,32 @@ include("parts/head.php");
                         </div>
                         <div class="iq-card-body">
                             <ul class="m-0 p-0 job-classification">
-                                <li class=""><i class="ri-check-line bg-danger"></i>Equipe A</li>
-                                <li class=""><i class="ri-check-line bg-success"></i>Equipe B</li>
-                                <li class=""><i class="ri-check-line bg-warning"></i>Equipe C</li>
-                                <li class=""><i class="ri-check-line bg-info"></i>Equipe D</li>
+                                <?php foreach ($rooms as $room): ?>
+                                    <li class=""><i class="ri-check-line" style="background-color: <?= $room['color'] ?>;"></i><?= $room['name'] ?></li>
+                                <?php endforeach; ?>
+<!--                                <li class=""><i class="ri-check-line bg-danger"></i>Sauna</li>-->
+<!--                                <li class=""><i class="ri-check-line bg-success"></i>Massage room</li>-->
+<!--                                <li class=""><i class="ri-check-line bg-warning"></i>Equipe C</li>-->
+<!--                                <li class=""><i class="ri-check-line bg-info"></i>Equipe D</li>-->
                             </ul>
                         </div>
                     </div>
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
-                                <h4 class="card-title">Horaire du jour</h4>
+                                <h4 class="card-title">Réservation du jour</h4>
                             </div>
                         </div>
                         <div class="iq-card-body">
                             <ul class="m-0 p-0 today-schedule">
                                 <li class="d-flex">
                                     <div class="schedule-icon"><i class="ri-checkbox-blank-circle-fill text-primary"></i></div>
-                                    <div class="schedule-text"> <span>Entraînement avec Mr Joseph</span>
+                                    <div class="schedule-text"> <span>Mr Joseph</span>
                                         <span>09:00 to 12:00</span></div>
                                 </li>
                                 <li class="d-flex">
                                     <div class="schedule-icon"><i class="ri-checkbox-blank-circle-fill text-success"></i></div>
-                                    <div class="schedule-text"> <span>Entraînement avec Mr Pierre</span>
+                                    <div class="schedule-text"> <span>Mr Pierre</span>
                                         <span>16:00 to 19:00</span></div>
                                 </li>
                             </ul>
@@ -110,7 +116,7 @@ include("parts/head.php");
                                 <h4 class="card-title">Planning (Available soon)</h4>
                             </div>
                             <div class="iq-card-header-toolbar d-flex align-items-center">
-                                <a href="#" class="btn btn-primary"><i class="ri-add-line mr-2"></i>Ajouter un entraînement</a>
+                                <a href="#" data-toggle="modal" data-target=".modal-add-reservation" class="btn btn-primary"><i class="ri-add-line mr-2"></i>Nouvelle réservation</a>
                             </div>
                         </div>
                         <div class="iq-card-body">
@@ -119,6 +125,81 @@ include("parts/head.php");
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="modal fade modal-add-reservation" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <form method="post" action="">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Nouvelle réservation (Available soon)</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Veuillez remplir tous les champs disponible.</p>
+                        <div class="row">
+                            <div class="col">
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Client</label>
+                                    <select class="form-control" id="exampleFormControlSelect1">
+                                        <?php foreach ($customers as $customer): ?>
+                                            <option value="<?= $customer['id'] ?>"><?= $customer['first_name'].' '.$customer['last_name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" required class="form-control" name="fuulname" placeholder="Nom">
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" required class="form-control" name="telephone" placeholder="Telephone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="exampleFormControlSelect1">Sale</label>
+                                    <select class="form-control" id="exampleFormControlSelect1">
+                                        <?php foreach ($rooms as $room): ?>
+                                            <option value="<?= $room['id'] ?>"><?= $room['name'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="exampleFormControlTextarea1">Note</label>
+                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                </div>
+                                <input type="hidden" name="created_at" value="<?= date('Y-m-d H:i:s') ?>"
+                                       class="form-control" placeholder="">
+                                <input type="hidden" name="updated_at" value="<?= date('Y-m-d H:i:s') ?>"
+                                       class="form-control" placeholder="">
+                            </div>
+                            <div class="col">
+<!--                                <input type="text" required name="fingerprint" class="form-control"-->
+<!--                                       placeholder="UID">-->
+                                <label for="exampleFormControlSelect1">Date / Heure</label>
+                                <input style="margin: auto;" type="text" class="flatpicker d-none">
+
+                                <br/>
+                                <hr/>
+                                <div class="row">
+                                    <div class="col">
+                                        <input type="time" name="from_time" class="form-control" id="exampleInputtime" value="<?= date('H:i', strtotime('+1 hour', strtotime(date('Y-m-d H:i:s')))) ?>">
+                                    </div>
+                                    <div class="col">
+                                        <input type="time" name="to_time" class="form-control" id="exampleInputtime" value="<?= date('H:i', strtotime('+2 hour', strtotime(date('Y-m-d H:i:s')))) ?>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <a type="button" style="color: white;" class="btn btn-secondary" data-dismiss="modal">Fermer</a>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

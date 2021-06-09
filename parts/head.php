@@ -19,9 +19,17 @@ if(isset($_SESSION) && isset($_SESSION['user'])) {
 
 
     if(isset($_SESSION['timeout'])){
-        if(time() - $_SESSION['timeout'] >= 3600 ){
-            header("location:login.php?message=Session expirée&error=0");
-            die();
+
+        if($_SESSION['user']['role'] === 'Administrateur'){
+            if(time() - $_SESSION['timeout'] >= 3600 ){
+                header("location:login.php?message=Session expirée&error=0");
+                die();
+            }
+        }else{
+            if(time() - $_SESSION['timeout'] >= 900 ){
+                header("location:login.php?message=Session expirée&error=0");
+                die();
+            }
         }
     }
 }
