@@ -27,7 +27,8 @@ if (isset($_GET['customer_id'])) {
     $customer = Customer::getById($_GET['customer_id']);
 }
 
-$pricings = Pricing::getPricings();
+$pricings = Pricing::getByType('abonnement');
+//$pricings = Pricing::getPricings();
 //die();
 
 ?>

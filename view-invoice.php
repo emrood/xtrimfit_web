@@ -28,13 +28,15 @@ $offset = 0;
 
 if (isset($_GET['invoice_id']) && !empty($_GET['invoice_id'])) {
 
-    $pricings = Pricing::getPricings();
+//    $pricings = Pricing::getPricings();
     $rates = Rate::getRates();
 
     if ($_GET['invoice_id'] === 'new') {
         $invoice = json_decode(json_encode(new Invoice(0, Invoice::invoice_num(1, 7, 'XS1-'), 1, 1, $pricings[0]['price'], 0, 0, 0, $pricings[0]['price'], 'Paid', date('Y-m-d'), date('Y-m-d'), date('Y-m-d'), '', date('Y-m-d H:i:s'), 2, 1)), true);
+        $pricings = Pricing::getByType('session');
     } else {
         $invoice = Invoice::getById($_GET['invoice_id']);
+        $pricings = Pricing::getByType('abonnement');
     }
 
 
@@ -127,18 +129,10 @@ include("parts/head.php");
                                     <label>Plan</label>
                                     <select name="pricing_id" class="form-control mb-3" <?= ((int)$invoice['customer_id'] !== 1 && $invoice['status'] === 'Paid') ? 'disabled' : '' ?>>
                                         <?php foreach ($pricings as $pricing): ?>
-                                            <?php if ((int)$customer['id'] !== 1): ?>
-                                                <?php if ((int)$pricing['id'] !== 1): ?>
-                                                    <option <?= ($pricing['id'] === $invoice['pricing_id']) ? 'selected="selected"' : '' ?>
-                                                            value="<?= $pricing['id'] ?>"><?= $pricing['name'] . ' / $' . number_format($pricing['price'], 2, '.', ',') ?></option>
-                                                <?php endif; ?>
-                                            <?php else: ?>
-                                                <?php if ((int)$pricing['id'] === 1): ?>
-                                                    <option <?= ($pricing['id'] === $invoice['pricing_id']) ? 'selected="selected"' : '' ?>
-                                                            value="<?= $pricing['id'] ?>"><?= $pricing['name'] . ' / $' . number_format($pricing['price'], 2, '.', ',') ?></option>
-                                                <?php endif; ?>
-                                            <?php endif; ?>
+                                            <option <?= ($pricing['id'] === $invoice['pricing_id']) ? 'selected="selected"' : '' ?>
+                                                    value="<?= $pricing['id'] ?>"><?= $pricing['name'] . ' / $' . number_format($pricing['price'], 2, '.', ',') ?></option>
                                         <?php endforeach; ?>
+
                                     </select>
                                 </div>
 

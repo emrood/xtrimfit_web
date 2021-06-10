@@ -264,6 +264,16 @@ class Invoice implements \JsonSerializable
         return $row;
     }
 
+
+    public static function getByInvoiceNumber($invoice_number)
+    {
+
+        $database = self::getConnection();
+        $data = $database->executeQuery("SELECT * FROM invoices WHERE `invoice_number` = '?'", array($invoice_number));
+        $row = mysqli_fetch_array($data, MYSQLI_ASSOC);
+        return $row;
+    }
+
     public static function getTotalUnpaid($from_date = null, $to_date = null, $period = 'month')
     {
         $database = self::getConnection();
@@ -413,13 +423,15 @@ class Invoice implements \JsonSerializable
     public static function insert(Invoice $invoice)
     {
 
+        $resulr = null;
+
         try {
 
 //            var_dump('<br/> saving cash... <br/>')
 
             $database = self::getConnection();
 //            var_dump("IN_INSERT </br>");
-            $database->executeQuery("INSERT INTO invoices (invoice_number, customer_id, pricing_id, price, discount_percentage, taxe_percentage, fees, total, status, from_date, paid_date, to_date, comment, created_at, updated_at, rate_id, rate) VALUES ('?', ?, ?, ?, ?, ?, ?, ?, '?', '?', '?', '?', '?', '?', '?', ?, ?)",
+         $result =   $database->executeQuery("INSERT INTO invoices (invoice_number, customer_id, pricing_id, price, discount_percentage, taxe_percentage, fees, total, status, from_date, paid_date, to_date, comment, created_at, updated_at, rate_id, rate) VALUES ('?', ?, ?, ?, ?, ?, ?, ?, '?', '?', '?', '?', '?', '?', '?', ?, ?)",
                 array($invoice->invoice_number, $invoice->customer_id, $invoice->pricing_id, $invoice->price, $invoice->discount_percentage, $invoice->taxe_percentage, $invoice->fees, $invoice->total, $invoice->status, $invoice->from_date, $invoice->paid_date, $invoice->to_date, $invoice->comment, $invoice->created_at, $invoice->updated_at, $invoice->rate_id, $invoice->rate));
 
             if($invoice->status === 'Paid'){
@@ -452,6 +464,8 @@ class Invoice implements \JsonSerializable
         } catch (Exception $e) {
             var_dump($e->getMessage());
         }
+
+        return $result;
 
     }
 

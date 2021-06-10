@@ -70,6 +70,22 @@ class Pricing
     }
 
 
+    public static function getByType($type){
+        $database = self::getConnection();
+
+        $query = 'SELECT * FROM pricings WHERE `billing` = "'.$type.'" ORDER BY id ASC';
+
+        $data = $database->executeQuery($query);
+
+        $result = array();
+        while ($row = mysqli_fetch_array($data,MYSQLI_ASSOC)) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
+
+
     public static function getById($id){
         $database = self::getConnection();
         $data = $database->executeQuery("SELECT * FROM pricings WHERE id = '?'", array($id));
