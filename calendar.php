@@ -239,7 +239,7 @@ include("parts/head.php");
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
-                                <h4 class="card-title">Planning (Available soon)</h4>
+                                <h4 class="card-title">Planning</h4>
                             </div>
                             <div class="iq-card-header-toolbar d-flex align-items-center">
                                 <a href="#" data-toggle="modal" data-target=".modal-add-reservation"
@@ -265,7 +265,7 @@ include("parts/head.php");
                 <input type="hidden" name="fees" value="0">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Nouvelle réservation (Available soon)</h5>
+                        <h5 class="modal-title">Nouvelle réservation</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -474,54 +474,7 @@ include("parts/footer.php");
     }
 
     function loadEventsFromApi() {
-        // $.ajax({
-        //     url: xtrim_api + 'reservations',
-        //     contentType: 'application/json; charset=utf-8',
-        //     cache: false,
-        //     async: true,
-        //     dataType: "jsonp",
-        //     crossDomain: true,
-        //     format: "json",
-        //     jsonp: false,
-        //     cors: true ,
-        //     // secure: true,
-        //     headers: {
-        //         'Access-Control-Allow-Origin': '*',
-        //         'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
-        //     },
-        //
-        //     // jsonpCallback: "localJsonpCallback",
-        //     success: function(data){
-        //         alert( "Data Loaded: " + data );
-        //         console.log("API_DATA", data);
-        //         data.forEach(function(item) {
-        //             console.log("TEST", "LOL");
-        //             // var myEvent = {
-        //             //     title: item.fullname,
-        //             //     // allDay: true,
-        //             //     start: new Date(),
-        //             //     end: new Date()
-        //             // };
-        //             //
-        //             // calendar.addEvent(myEvent);
-        //             console.log(item);
-        //             // console.log('EVENT_NAME', item.fullname);
-        //         });
-        //     },
-        //
-        //     error: function (request, status, error) {
-        //         alert(request.status + " " + status + " " + error.toString());
-        //     },
-        // });
-
-        // $.get( xtrim_api + 'reservations', { name: "John", time: "2pm" } )
-        //     .done(function( data ) {
-        //         alert( "Data Loaded: " + data );
-        //         console.log("API_DATA", JSON.stringify(data));
-        // });
-
         var evts = [];
-
         const Http = new XMLHttpRequest();
         const url = xtrim_api + 'reservations';
         Http.open("GET", url);
@@ -531,28 +484,6 @@ include("parts/footer.php");
             let data = JSON.parse(Http.responseText);
             console.log('NUMBER_OF _OBJECTS', Object.keys(data).length);
             console.log('DATAS', data);
-            // data.forEach(function (item) {
-            //
-            //     var from_date = item.reservation_date + " " + item.from_time;
-            //     var to_date = item.reservation_date + " " + item.to_time;
-            //     // Split timestamp into [ Y, M, D, h, m, s ]
-            //     var from_date_array = from_date.split(/[- :]/);
-            //     var to_date_array = from_date.split(/[- :]/);
-            //     // Apply each element to the Date function
-            //     var f = new Date(Date.UTC(from_date_array[0], from_date_array[1] - 1, from_date_array[2], from_date_array[3], from_date_array[4], from_date_array[5]));
-            //     var t = new Date(Date.UTC(to_date_array[0], to_date_array[1] - 1, to_date_array[2], to_date_array[3], to_date_array[4], to_date_array[5]));
-            //     console.log("TEST", f);
-            //     var myEvent = {
-            //         title: item.fullname,
-            //         color: item.color,
-            //         start: f,
-            //         end: t
-            //     };
-            //
-            //     calendar.addEvent(myEvent);
-            //     console.log('added', item);
-            //     // console.log('EVENT_NAME', item.fullname);
-            // });
 
             if (Http.readyState === 4 && Http.status === 200)
             {
@@ -568,22 +499,16 @@ include("parts/footer.php");
                     var f = new Date(Date.UTC(from_date_array[0], from_date_array[1] - 1, from_date_array[2], from_date_array[3], from_date_array[4], from_date_array[5]));
                     var t = new Date(Date.UTC(to_date_array[0], to_date_array[1] - 1, to_date_array[2], to_date_array[3], to_date_array[4], to_date_array[5]));
                     var myEvent = {
-                        title: data[event].fullname,
+                        title: data[event].fullname + ' / ' + data[event].phone,
                         color: data[event].color,
                         start: f,
                         end: t
                     };
 
-                    // evts.push(myEvent);
-                    // evts.splice(event, myEvent);
-
                     calendar.addEvent(myEvent);
                 }
 
             }
-            // console.log("EVENTS_SIZE", evts.length);
-            // calendar.rerenderEvents();
-
         }
 
     }
