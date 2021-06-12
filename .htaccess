@@ -16,6 +16,10 @@
     #RewriteCond %{HTTPS} off
     #RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+    <IfModule mod_headers.c>
+        Header set Access-Control-Allow-Origin "*"
+    </IfModule>
+
 
     #RewriteRule (.*) /index.php/$1 [L]
     RewriteCond %{REQUEST_URI}::$1 ^(.*?/)(.*)::\2$

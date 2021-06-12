@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pricing = Pricing::getById($_POST['pricing_id']);
 
 
-    $invoice_number = Invoice::invoice_num($_POST['customer_id'], 7, 'XS'.$_POST['customer_id'].'-');
+    $invoice_number = Invoice::invoice_num($_POST['customer_id'], 7, 'XS' . $_POST['customer_id'] . '-');
 
     $_POST['from_date'] = $_POST['reservation_date'] . ' ' . $_POST['from_time'] . ':00';
     $_POST['to_date'] = $_POST['reservation_date'] . ' ' . $_POST['to_time'] . ':00';
@@ -89,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 //    die();
 
 
-    header('location:view-invoice.php?invoice_id='.$registered_invoice['id']);
+    header('location:view-invoice.php?invoice_id=' . $registered_invoice['id']);
     die();
 
 
@@ -124,11 +124,11 @@ include("parts/head.php");
     <script>
         var calendar;
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calen');
 
             calendar = new FullCalendar.Calendar(calendarEl, {
-                plugins: [ 'dayGrid', 'timeGrid', 'list', 'bootstrap' ],
+                plugins: ['dayGrid', 'timeGrid', 'list', 'bootstrap'],
                 locale: 'fr',
                 firstDay: 1,
                 // header: {
@@ -160,15 +160,15 @@ include("parts/head.php");
 
             });
 
-            var myEvent = {
-                title:"my new event",
-                // allDay: true,
-                start: new Date(),
-                end: new Date()
-            };
-
-            console.log(myEvent.end);
-            calendar.addEvent(myEvent);
+            // var myEvent = {
+            //     title: "my new event",
+            //     // allDay: true,
+            //     start: new Date(),
+            //     end: new Date()
+            // };
+            //
+            // // console.log(myEvent.end);
+            // calendar.addEvent(myEvent);
 
             calendar.render();
         });
@@ -192,14 +192,17 @@ include("parts/head.php");
                             <ul class="m-0 p-0 today-schedule">
                                 <?php foreach ($reservations as $reservation): ?>
                                     <li class="d-flex">
-                                        <div class="schedule-icon"><i class="ri-checkbox-blank-circle-fill" style="color: <?= Rooms::getById($reservation['room_id'])['color'] ?>;"></i></div>
+                                        <div class="schedule-icon"><i class="ri-checkbox-blank-circle-fill"
+                                                                      style="color: <?= Rooms::getById($reservation['room_id'])['color'] ?>;"></i>
+                                        </div>
                                         <div class="schedule-text">
                                             <span><?= $reservation['fullname'] ?></span>
                                             <span>Tél: <?= $reservation['phone'] ?></span>
-                                            <?php if(isset($_GET['from_date']) && isset($_GET['to_date']) && $_GET['from_date'] !== $_GET['to_date']): ?>
-                                                <span><?= date("d M Y", strtotime($reservation['reservation_date']))  ?></span>
+                                            <?php if (isset($_GET['from_date']) && isset($_GET['to_date']) && $_GET['from_date'] !== $_GET['to_date']): ?>
+                                                <span><?= date("d M Y", strtotime($reservation['reservation_date'])) ?></span>
                                             <?php endif; ?>
-                                            <span><?=  date("h:i A", strtotime($reservation['from_time']))  ?> a <?= date("h:i A", strtotime($reservation['to_time'])) ?></span>
+                                            <span><?= date("h:i A", strtotime($reservation['from_time'])) ?>
+                                                a <?= date("h:i A", strtotime($reservation['to_time'])) ?></span>
                                         </div>
                                     </li>
                                 <?php endforeach; ?>
@@ -243,9 +246,9 @@ include("parts/head.php");
                                    class="btn btn-primary"><i class="ri-add-line mr-2"></i>Nouvelle réservation</a>
                             </div>
                         </div>
-<!--                        <div class="iq-card-body">-->
-<!--                            <div id='calendar1'></div>-->
-<!--                        </div>-->
+                        <!--                        <div class="iq-card-body">-->
+                        <!--                            <div id='calendar1'></div>-->
+                        <!--                        </div>-->
                         <div class="iq-card-body">
                             <div id='calen'></div>
                         </div>
@@ -453,7 +456,7 @@ include("parts/footer.php");
     });
 
     function updateView() {
-        console.log($('select[name="customer_id"]').val());
+        // console.log($('select[name="customer_id"]').val());
 
         let customer_id = parseInt($('select[name="customer_id"]').val());
 
@@ -471,45 +474,118 @@ include("parts/footer.php");
     }
 
     function loadEventsFromApi() {
-        $.ajax({
-            url: xtrim_api + 'reservations',
-            contentType: 'application/json; charset=utf-8',
-            cache: false,
-            async: true,
-            // dataType: "jsonp",
-            // crossDomain: true,
-            // format: "json",
-            // jsonp: false,
-
-            // jsonpCallback: "localJsonpCallback",
-            success: function(data){
-                alert( "Data Loaded: " + data );
-                console.log("API_DATA", data);
-                data.forEach(function(item) {
-                    console.log("TEST", "LOL");
-                    // var myEvent = {
-                    //     title: item.fullname,
-                    //     // allDay: true,
-                    //     start: new Date(),
-                    //     end: new Date()
-                    // };
-                    //
-                    // calendar.addEvent(myEvent);
-                    console.log(item);
-                    // console.log('EVENT_NAME', item.fullname);
-                });
-            },
-
-            error: function (request, status, error) {
-                alert(request.status + " " + status + " " + error.toString());
-            },
-        });
+        // $.ajax({
+        //     url: xtrim_api + 'reservations',
+        //     contentType: 'application/json; charset=utf-8',
+        //     cache: false,
+        //     async: true,
+        //     dataType: "jsonp",
+        //     crossDomain: true,
+        //     format: "json",
+        //     jsonp: false,
+        //     cors: true ,
+        //     // secure: true,
+        //     headers: {
+        //         'Access-Control-Allow-Origin': '*',
+        //         'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept',
+        //     },
+        //
+        //     // jsonpCallback: "localJsonpCallback",
+        //     success: function(data){
+        //         alert( "Data Loaded: " + data );
+        //         console.log("API_DATA", data);
+        //         data.forEach(function(item) {
+        //             console.log("TEST", "LOL");
+        //             // var myEvent = {
+        //             //     title: item.fullname,
+        //             //     // allDay: true,
+        //             //     start: new Date(),
+        //             //     end: new Date()
+        //             // };
+        //             //
+        //             // calendar.addEvent(myEvent);
+        //             console.log(item);
+        //             // console.log('EVENT_NAME', item.fullname);
+        //         });
+        //     },
+        //
+        //     error: function (request, status, error) {
+        //         alert(request.status + " " + status + " " + error.toString());
+        //     },
+        // });
 
         // $.get( xtrim_api + 'reservations', { name: "John", time: "2pm" } )
         //     .done(function( data ) {
         //         alert( "Data Loaded: " + data );
         //         console.log("API_DATA", JSON.stringify(data));
         // });
+
+        var evts = [];
+
+        const Http = new XMLHttpRequest();
+        const url = xtrim_api + 'reservations';
+        Http.open("GET", url);
+        Http.send();
+        Http.onreadystatechange = (e) => {
+            // console.log(Http.responseText);
+            let data = JSON.parse(Http.responseText);
+            console.log('NUMBER_OF _OBJECTS', Object.keys(data).length);
+            console.log('DATAS', data);
+            // data.forEach(function (item) {
+            //
+            //     var from_date = item.reservation_date + " " + item.from_time;
+            //     var to_date = item.reservation_date + " " + item.to_time;
+            //     // Split timestamp into [ Y, M, D, h, m, s ]
+            //     var from_date_array = from_date.split(/[- :]/);
+            //     var to_date_array = from_date.split(/[- :]/);
+            //     // Apply each element to the Date function
+            //     var f = new Date(Date.UTC(from_date_array[0], from_date_array[1] - 1, from_date_array[2], from_date_array[3], from_date_array[4], from_date_array[5]));
+            //     var t = new Date(Date.UTC(to_date_array[0], to_date_array[1] - 1, to_date_array[2], to_date_array[3], to_date_array[4], to_date_array[5]));
+            //     console.log("TEST", f);
+            //     var myEvent = {
+            //         title: item.fullname,
+            //         color: item.color,
+            //         start: f,
+            //         end: t
+            //     };
+            //
+            //     calendar.addEvent(myEvent);
+            //     console.log('added', item);
+            //     // console.log('EVENT_NAME', item.fullname);
+            // });
+
+            if (Http.readyState === 4 && Http.status === 200)
+            {
+
+                for (var event in data) {
+                    console.log(event, data[event]);
+                    var from_date = data[event].reservation_date + " " + data[event].from_time;
+                    var to_date = data[event].reservation_date + " " + data[event].to_time;
+                    // Split timestamp into [ Y, M, D, h, m, s ]
+                    var from_date_array = from_date.split(/[- :]/);
+                    var to_date_array = from_date.split(/[- :]/);
+                    // Apply each element to the Date function
+                    var f = new Date(Date.UTC(from_date_array[0], from_date_array[1] - 1, from_date_array[2], from_date_array[3], from_date_array[4], from_date_array[5]));
+                    var t = new Date(Date.UTC(to_date_array[0], to_date_array[1] - 1, to_date_array[2], to_date_array[3], to_date_array[4], to_date_array[5]));
+                    var myEvent = {
+                        title: data[event].fullname,
+                        color: data[event].color,
+                        start: f,
+                        end: t
+                    };
+
+                    // evts.push(myEvent);
+                    // evts.splice(event, myEvent);
+
+                    calendar.addEvent(myEvent);
+                }
+
+            }
+            // console.log("EVENTS_SIZE", evts.length);
+            // calendar.rerenderEvents();
+
+        }
+
     }
 
     function xtrim(data) {
