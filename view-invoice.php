@@ -246,8 +246,8 @@ include("parts/head.php");
                                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                                 <?php endif; ?>
                                 <a href="list-invoice.php" class="btn iq-bg-secondary">Retour</a>
-                                <a href="#" onclick="PrintElem()" class="btn iq-bg-danger pull-right"><i
-                                            class="ri-printer-line"></i>Imprimer</a>
+<!--                                <a href="#" onclick="PrintElem()" class="btn iq-bg-danger pull-right"><i class="ri-printer-line"></i>Imprimer</a>-->
+                                <a href="/print/invoice.php?invoice_id=<?= $invoice['id'] ?>" target="_blank" class="btn iq-bg-danger pull-right"><i class="ri-printer-line"></i>Imprimer</a>
                             </form>
                         </div>
                     </div>

@@ -188,8 +188,8 @@ include("parts/head.php");
                                             <td>
                                                 <div class="flex align-items-center list-user-action">
                                                     <a class="iq-bg-info" data-toggle="tooltip" data-placement="top"
-                                                       title="" data-original-title="Imprimer"
-                                                       href="#"><i class="ri-printer-line"></i></a>
+                                                       title="" data-original-title="Imprimer" target="_blank"
+                                                       href="/print/invoice.php?invoice_id=<?= $invoice['id'] ?>"><i class="ri-printer-line"></i></a>
 
                                                         <a class="iq-bg-primary" data-toggle="tooltip"
                                                            data-placement="top" title="" data-original-title="Edit"
