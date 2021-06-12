@@ -36,7 +36,11 @@ if (isset($_GET['invoice_id']) && !empty($_GET['invoice_id'])) {
         $pricings = Pricing::getByType('session');
     } else {
         $invoice = Invoice::getById($_GET['invoice_id']);
-        $pricings = Pricing::getByType('abonnement');
+        if($invoice['from_date'] === $invoice['to_date']){
+            $pricings = Pricing::getByType('session');
+        }else{
+            $pricings = Pricing::getByType('abonnement');
+        }
     }
 
 
@@ -188,8 +192,8 @@ include("parts/head.php");
                                 <hr/>
 
                                 <div class="form-group">
-                                    <label>Status</label>
-                                    <select name="status" <?= ((int)$invoice['customer_id'] === 1) ? 'disabled' : '' ?>
+                                    <label class="text-danger text-capitalize text-xl-left" style="font-weight: bolder;">* Status</label>
+                                    <select name="status" <?= ($_GET['invoice_id'] === 'new') ? 'disabled' : '' ?>
                                             class="form-control mb-3">
                                         <?php foreach (Constants::getInvoiceStatus() as $status): ?>
                                             <option <?= ($status === $invoice['status']) ? 'selected="selected"' : '' ?>

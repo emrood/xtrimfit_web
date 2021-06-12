@@ -52,6 +52,15 @@ class Rooms
     }
 
 
+    public static function getById($id)
+    {
+        $database = self::getConnection();
+        $data = $database->executeQuery("SELECT * FROM rooms WHERE id = '?'", array($id));
+        $row = mysqli_fetch_array($data, MYSQLI_ASSOC);
+        return $row;
+    }
+
+
     public static function getRooms($limit = null, $offset = null, $available = null)
     {
         $database = self::getConnection();

@@ -1,7 +1,7 @@
 function filterByDate() {
     // let from = $('input[name="filter_date_from"]').val();
     // let to = $('input[name="filter_date_to"]').val();
-    let link = remove('error', removeParam('message', removeParam('to_date', removeParam('from_date', window.location.href)) + "?from_date=" + $('input[name="filter_date_from"]').val() + "&to_date=" + $('input[name="filter_date_to"]').val()));
+    let link = removeParam('error', removeParam('message', removeParam('to_date', removeParam('from_date', window.location.href)) + "?from_date=" + $('input[name="filter_date_from"]').val() + "&to_date=" + $('input[name="filter_date_to"]').val()));
     window.location.replace(link);
 }
 

@@ -21,10 +21,10 @@ if (!isset($_SESSION['user'])) {
 $_SESSION['active'] = 'list-invoice';
 
 $text = null;
-$limit = 40;
+$limit = 400;
 $offset = 0;
-$from = null;
-$to = null;
+$from = date('Y-m-d', strtotime('-1 month', strtotime(date('Y-m-d'))));
+$to = date('Y-m-d');
 
 if (isset($_GET['query']) && !empty($_GET['query'])) {
     $text = $_GET['query'];

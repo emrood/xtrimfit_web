@@ -33,6 +33,21 @@ $rooms = Rooms::getRooms();
 $customers = Customer::getCustomers(1000, 0);
 $pricings = Pricing::getByType('session');
 
+
+$from = null;
+$to = null;
+
+if (isset($_GET['from_date'])) {
+    $from = $_GET['from_date'];
+}
+
+if (isset($_GET['to_date'])) {
+    $to = $_GET['to_date'];
+}
+
+$reservations = Reservation::getByDate($from, $to);
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 //    var_dump($_POST);
@@ -106,6 +121,58 @@ include("parts/head.php");
     ?>
     <!-- TOP Nav Bar END -->
     <!-- Page Content  -->
+    <script>
+        var calendar;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calen');
+
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: [ 'dayGrid', 'timeGrid', 'list', 'bootstrap' ],
+                locale: 'fr',
+                firstDay: 1,
+                // header: {
+                //     center: 'dayGridMonth, dayGridWeek, timeGrid, list' // buttons for switching between views
+                // },
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth, dayGridWeek, timeGrid, list'
+                },
+                views: {
+                    timeGrid: {
+                        type: 'timeGrid',
+                        buttonText: 'jour',
+                    },
+                    dayGridMonth: {
+                        type: 'dayGridMonth',
+                        buttonText: 'mois',
+                    },
+                    dayGridWeek: {
+                        type: 'dayGridWeek',
+                        buttonText: 'semaine',
+                    },
+                    list: {
+                        type: 'list',
+                        buttonText: 'liste',
+                    },
+                },
+
+            });
+
+            var myEvent = {
+                title:"my new event",
+                // allDay: true,
+                start: new Date(),
+                end: new Date()
+            };
+
+            console.log(myEvent.end);
+            calendar.addEvent(myEvent);
+
+            calendar.render();
+        });
+    </script>
     <div id="content-page" class="content-page">
         <div class="container-fluid">
             <div class="row row-eq-height">
@@ -115,6 +182,30 @@ include("parts/head.php");
                     <!--                            <input type="text" class="flatpicker d-none">-->
                     <!--                        </div>-->
                     <!--                    </div>-->
+                    <div class="iq-card">
+                        <div class="iq-card-header d-flex justify-content-between">
+                            <div class="iq-header-title">
+                                <h4 class="card-title">Réservations</h4>
+                            </div>
+                        </div>
+                        <div class="iq-card-body">
+                            <ul class="m-0 p-0 today-schedule">
+                                <?php foreach ($reservations as $reservation): ?>
+                                    <li class="d-flex">
+                                        <div class="schedule-icon"><i class="ri-checkbox-blank-circle-fill" style="color: <?= Rooms::getById($reservation['room_id'])['color'] ?>;"></i></div>
+                                        <div class="schedule-text">
+                                            <span><?= $reservation['fullname'] ?></span>
+                                            <span>Tél: <?= $reservation['phone'] ?></span>
+                                            <?php if(isset($_GET['from_date']) && isset($_GET['to_date']) && $_GET['from_date'] !== $_GET['to_date']): ?>
+                                                <span><?= date("d M Y", strtotime($reservation['reservation_date']))  ?></span>
+                                            <?php endif; ?>
+                                            <span><?=  date("h:i A", strtotime($reservation['from_time']))  ?> a <?= date("h:i A", strtotime($reservation['to_time'])) ?></span>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
@@ -139,29 +230,7 @@ include("parts/head.php");
                             </ul>
                         </div>
                     </div>
-                    <div class="iq-card">
-                        <div class="iq-card-header d-flex justify-content-between">
-                            <div class="iq-header-title">
-                                <h4 class="card-title">Réservation du jour</h4>
-                            </div>
-                        </div>
-                        <div class="iq-card-body">
-                            <ul class="m-0 p-0 today-schedule">
-                                <li class="d-flex">
-                                    <div class="schedule-icon"><i
-                                                class="ri-checkbox-blank-circle-fill text-primary"></i></div>
-                                    <div class="schedule-text"><span>Mr Joseph</span>
-                                        <span>09:00 to 12:00</span></div>
-                                </li>
-                                <li class="d-flex">
-                                    <div class="schedule-icon"><i
-                                                class="ri-checkbox-blank-circle-fill text-success"></i></div>
-                                    <div class="schedule-text"><span>Mr Pierre</span>
-                                        <span>16:00 to 19:00</span></div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+
                 </div>
                 <div class="col-md-9">
                     <div class="iq-card">
@@ -174,8 +243,11 @@ include("parts/head.php");
                                    class="btn btn-primary"><i class="ri-add-line mr-2"></i>Nouvelle réservation</a>
                             </div>
                         </div>
+<!--                        <div class="iq-card-body">-->
+<!--                            <div id='calendar1'></div>-->
+<!--                        </div>-->
                         <div class="iq-card-body">
-                            <div id='calendar1'></div>
+                            <div id='calen'></div>
                         </div>
                     </div>
                 </div>
@@ -334,6 +406,8 @@ include("parts/footer.php");
 <script src="js/chart-custom.js"></script>
 <!-- Custom JavaScript -->
 <script src="js/custom.js"></script>
+<script src="js/filter.js"></script>
+<script src="js/constants.js"></script>
 <script>
     $(function () {
         // console.log( "ready!" );
@@ -351,6 +425,30 @@ include("parts/footer.php");
                 return false;
             }
         });
+
+        // var myCalendar = $('#calendar1');
+        // myCalendar = require("fullcalendar/core/main.d.ts");
+        // console.log(myCalendar);
+        // myCalendar.Calendar();
+        // var myEvent = {
+        //     title:"my new event",
+        //     allDay: true,
+        //     start: new Date(),
+        //     end: new Date()
+        // };
+        // // myCalendar = new Calendar( 'renderEvent', myEvent );
+        //
+        // Calendar.prototype.addEvent();
+        //
+        // addEvent(myEvent, 'test', 2, myCalendar);
+
+        function localJsonpCallback(json) {
+            alert(json.toString());
+        }
+
+
+        loadEventsFromApi();
+
 
     });
 
@@ -370,6 +468,52 @@ include("parts/footer.php");
             $('input[name="fullname"]').attr('value', $('select[name="customer_id"] option:selected').attr('fullname'));
             $('input[name="phone"]').attr('value', $('select[name="customer_id"] option:selected').attr('phone'));
         }
+    }
+
+    function loadEventsFromApi() {
+        $.ajax({
+            url: xtrim_api + 'reservations',
+            contentType: 'application/json; charset=utf-8',
+            cache: false,
+            async: true,
+            // dataType: "jsonp",
+            // crossDomain: true,
+            // format: "json",
+            // jsonp: false,
+
+            // jsonpCallback: "localJsonpCallback",
+            success: function(data){
+                alert( "Data Loaded: " + data );
+                console.log("API_DATA", data);
+                data.forEach(function(item) {
+                    console.log("TEST", "LOL");
+                    // var myEvent = {
+                    //     title: item.fullname,
+                    //     // allDay: true,
+                    //     start: new Date(),
+                    //     end: new Date()
+                    // };
+                    //
+                    // calendar.addEvent(myEvent);
+                    console.log(item);
+                    // console.log('EVENT_NAME', item.fullname);
+                });
+            },
+
+            error: function (request, status, error) {
+                alert(request.status + " " + status + " " + error.toString());
+            },
+        });
+
+        // $.get( xtrim_api + 'reservations', { name: "John", time: "2pm" } )
+        //     .done(function( data ) {
+        //         alert( "Data Loaded: " + data );
+        //         console.log("API_DATA", JSON.stringify(data));
+        // });
+    }
+
+    function xtrim(data) {
+        alert("XTRIM");
     }
 </script>
 </body>

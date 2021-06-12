@@ -104,6 +104,37 @@ class Reservation
         return $result;
     }
 
+
+    public static function getByDate($from = null, $to = null)
+    {
+        $database = self::getConnection();
+
+        $params = null;
+
+        $from_date = date('Y-m-d');
+        $to_date = date('Y-m-d');
+
+        if ($from !== null) {
+            $from_date = $from;
+        }
+
+        if ($to !== null) {
+            $to_date = $to;
+        }
+
+
+        $query = 'SELECT * FROM reservations WHERE DATE(reservation_date) >= DATE("'.$from_date.'") AND DATE(reservation_date) <= DATE("'.$to_date.'") ORDER BY reservation_date ASC, from_time ASC';
+
+        $data = $database->executeQuery($query);
+
+        $result = array();
+        while ($row = mysqli_fetch_array($data, MYSQLI_ASSOC)) {
+            $result[] = $row;
+        }
+
+        return $result;
+    }
+
     public static function getById($id)
     {
         $database = self::getConnection();
