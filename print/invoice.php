@@ -35,8 +35,17 @@ if (isset($_GET['invoice_id'])) {
 //    die();
     $status = '';
 
+
     if($invoice['status'] === 'Paid'){
         $status = '<img src="../images/paid_stamp.png" style="width: 150px; height: auto;"/>';
+    }
+
+
+    $comment = '';
+
+
+    if(isset($invoice['comment']) && !empty($invoice['comment'])){
+        $comment = '<b class="text-danger">Note:</b><p>'.$invoice['comment'].'.</p>';
     }
 
 }
@@ -116,14 +125,14 @@ $html = <<<EOD
         <div class="invoice-body">
             <div class="row">
                                         <div class="col-sm-12">
-                                            <h5>Summary</h5>
+                                            <h5>  Résumé</h5>
                                             <div class="table-responsive-sm">
                                                 <table class="table table-striped" style="border-collapse: collapse; border-top: 1px solid grey;">
                                                     <thead style="border-collapse: collapse; border-top: 1px solid black;">
                                                         <tr>
                                                             <th class="text-center" style="width: 40%; text-align: left;" scope="col">Plan</th>
                                                             <th class="text-center" style="width: 40%; text-align: center;" scope="col">Periode</th>
-                                                            <th class="text-center" style="width: 20%; text-align: right;" scope="col">Price</th>
+                                                            <th class="text-center" style="width: 20%; text-align: right;" scope="col">Prix</th>
                                                             
                                                         </tr>
                                                     </thead>
@@ -131,7 +140,7 @@ $html = <<<EOD
                                                         <tr style="border-top: 1px solid black;">
                                                             <td class="text-center" style="width: 40%; text-align: left;">$pricing[name]</td>
                                                             <td class="text-center" style="width: 40%; text-align: center;">$from au $to</td>
-                                                            <td class="text-center" style="width: 20%; text-align: right;">$total $</td>
+                                                            <td class="text-center" style="width: 20%; text-align: right;">$total USD</td>
                                                         </tr>
                                                     </tbody>
                                                     
@@ -144,8 +153,8 @@ $html = <<<EOD
                                             <table class="table table-striped" style="border-collapse: collapse; border-top: 1px solid grey;">
                                                 <tbody>
                                                     <tr>
-                                                        <th style="width: 70%;">Total</th>
-                                                        <th style="width: 30%; text-align: right;">$total $</th>
+                                                        <th style="width: 70%;">Montant  dû</th>
+                                                        <th style="width: 30%; text-align: right;">$total USD</th>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -163,8 +172,7 @@ $html = <<<EOD
                                                     </tr>
                                                 </tbody>
                                             </table>
-                                            <b class="text-danger">Notes:</b>
-                                            <p>$invoice[comment].</p>
+                                            $comment
                                         </div>
                                         
                 </div>

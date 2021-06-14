@@ -196,7 +196,7 @@ include("parts/head.php");
                                                                       style="color: <?= Rooms::getById($reservation['room_id'])['color'] ?>;"></i>
                                         </div>
                                         <div class="schedule-text">
-                                            <span><?= $reservation['fullname'] ?></span>
+                                            <span><a style="font-weight: bold;" href="view-invoice.php?invoice_id=<?= $reservation['invoice_id'] ?>"><?= $reservation['fullname'] ?></a></span>
                                             <span>Tél: <?= $reservation['phone'] ?></span>
                                             <?php if (isset($_GET['from_date']) && isset($_GET['to_date']) && $_GET['from_date'] !== $_GET['to_date']): ?>
                                                 <span><?= date("d M Y", strtotime($reservation['reservation_date'])) ?></span>

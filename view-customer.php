@@ -178,7 +178,7 @@ include("parts/head.php");
                                             <tbody>
                                             <?php foreach ($paid_invoices as $invoice): ?>
                                                 <tr>
-                                                    <td class="text-center" scope="row"><?= $invoice['invoice_number'] ?></td>
+                                                    <td class="text-center" scope="row"><a href="view-invoice.php?invoice_id=<?= $invoice['id'] ?>"><?= $invoice['invoice_number'] ?></a></td>
                                                     <td class="text-center"><?= Pricing::getById($invoice['pricing_id'])['name'] ?></td>
                                                     <td class="text-center">
                                                         <?php switch($invoice['status']): ?><?php case 'Paid': ?>
