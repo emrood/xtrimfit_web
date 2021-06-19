@@ -13,12 +13,14 @@ session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    $check_device = Device::getByFingerPrint($_POST['browser_fingerprint']);
+//    $check_device = Device::getByFingerPrint($_POST['browser_fingerprint']);
+    $check_device  = 1;
 
     if ($check_device !== null) {
         $_POST['device_name'] = 'Test';
 
-        Device::updateAll(Device::convertRowToObject($_POST));
+//        Device::updateAll(Device::convertRowToObject($_POST));
+        Device::insert(Device::convertRowToObject($_POST));
 
         $myusername = $_POST['email'];
         $mypassword = $_POST['password'];

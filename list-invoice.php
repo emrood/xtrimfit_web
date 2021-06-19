@@ -21,7 +21,7 @@ if (!isset($_SESSION['user'])) {
 $_SESSION['active'] = 'list-invoice';
 
 $text = null;
-$limit = 400;
+$limit = 50;
 $offset = 0;
 $from = date('Y-m-d', strtotime('-1 month', strtotime(date('Y-m-d'))));
 $to = date('Y-m-d');
@@ -125,10 +125,13 @@ include("parts/head.php");
                                     <div class="col-sm-12 col-md-6">
                                         <div id="user_list_datatable_info" class="dataTables_filter">
                                             <form class="mr-3 position-relative" action="" method="get">
-                                                <div class="form-group mb-0">
+                                                <div class="form-group mb-0" style="display: flex;">
                                                     <input type="search" name="query" class="form-control"
                                                            id="exampleInputSearch" placeholder="Search"
                                                            aria-controls="user-list-table">
+
+                                                    <button class="btn btn-outline-dark" style="margin-left: 4px;"><i class="ri-search-2-line"></i></button>
+
                                                 </div>
                                             </form>
                                         </div>

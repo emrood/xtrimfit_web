@@ -72,7 +72,7 @@
                                                                                                     aria-expanded="false"><i
                                 class="ri-mail-line"></i><span>Email</span></a></li>
                 <li class="<?php if ($_SESSION['active'] === 'calendar'): echo 'active'; endif; ?>"><a
-                            href="calendar.php" class="iq-waves-effect"><i class="ri-calendar-2-line"></i><span>Réservation</span></a>
+                            href="calendar.php" class="iq-waves-effect"><i class="ri-calendar-2-line"></i><span>Agenda</span></a>
                 </li>
 <!--                <li class="--><?php //if ($_SESSION['active'] === 'list-pricing'): echo 'active'; endif; ?><!--"><a-->
 <!--                            href="list-pricing.php" class="iq-waves-effect"><i class="ri-price-tag-line"></i><span>Pricing</span></a>-->

@@ -212,7 +212,7 @@ include("parts/head.php");
                     <div class="iq-card">
                         <div class="iq-card-header d-flex justify-content-between">
                             <div class="iq-header-title">
-                                <h4 class="card-title ">Salle disponible</h4>
+                                <h4 class="card-title ">Salles disponibles</h4>
                             </div>
 
                             <div class="iq-card-header-toolbar d-flex align-items-center">
