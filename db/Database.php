@@ -85,10 +85,10 @@ class Database
         }
 
 
-//        if (!mysqli_query($this->connection, $q)) {
-//            var_dump("Error: " . mysqli_error($this->connection));
-//            $_SESSION['db_error'] = mysqli_error($this->connection);
-//        }
+        if (!mysqli_query($this->connection, $q)) {
+            var_dump("Error: " . mysqli_error($this->connection));
+            $_SESSION['db_error'] = mysqli_error($this->connection);
+        }
 
 
 

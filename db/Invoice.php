@@ -482,8 +482,8 @@ class Invoice implements \JsonSerializable
 //            var_dump($invoice);
 //            die();
 
-            $database->executeQuery("UPDATE invoices SET pricing_id = ?, price = ?, discount_percentage = ?, taxe_percentage = ?, fees = ?, total = ?, status = '?', rate = '?',paid_date = '?', comment = '?', rate_id = ? WHERE id = ?",
-                array($invoice->pricing_id, $invoice->price, $invoice->discount_percentage, $invoice->taxe_percentage, $invoice->fees, $invoice->total, $invoice->status, $invoice->rate,$invoice->paid_date, $invoice->comment,  $invoice->rate_id, $invoice->id));
+            $database->executeQuery("UPDATE invoices SET pricing_id = ?, price = ?, discount_percentage = ?, taxe_percentage = ?, fees = ?, total = ?, status = '?', rate = '?',paid_date = '?', comment = '?', rate_id = ?, from_date = '?', to_date = '?' WHERE id = ?",
+                array($invoice->pricing_id, $invoice->price, $invoice->discount_percentage, $invoice->taxe_percentage, $invoice->fees, $invoice->total, $invoice->status, $invoice->rate,$invoice->paid_date, $invoice->comment,  $invoice->rate_id, $invoice->from_date, $invoice->to_date, $invoice->id));
 
 
             if($invoice->status === 'Paid'){

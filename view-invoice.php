@@ -181,7 +181,7 @@ include("parts/head.php");
                                                class="form-control" placeholder="0.00">
                                     </div>
                                     <div class="col">
-                                        <label for="exampleInputText1">Rabais (%)</label>
+                                        <label for="exampleInputText1">Rabais (USD)</label>
                                         <input type="number" name="discount_percentage"
                                                value="<?= $invoice['discount_percentage'] ?>" class="form-control"
                                                placeholder="0.0">
@@ -368,7 +368,8 @@ include("parts/footer.php");
         var total = base_price + fees;
 
         if (discount > 0) {
-            total = total - (total * discount / 100);
+            // total = total - (total * discount / 100);
+            total = total - discount;
         }
 
         if (taxe > 0) {

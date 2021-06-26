@@ -19,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $temp_total = (double) $_POST['price'] + (double) $_POST['fees'];
 
     if((double) $_POST['discount_percentage'] > 0){
-        $temp_total = $temp_total - ($temp_total * ((double) $_POST['discount_percentage']) / 100);
+//        $temp_total = $temp_total - ($temp_total * ((double) $_POST['discount_percentage']) / 100);
+        $temp_total = $temp_total - $_POST['discount_percentage'];
     }
 
     if((double) $_POST['taxe_percentage'] > 0){
@@ -31,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if($_POST['status'] === 'Paid'){
         $_POST['paid_date'] = date('Y-m-d');
     }else{
-        $_POST['paid_date'] = null;
+        $_POST['paid_date'] = date('Y-m-d');
     }
 
     if((int) $_POST['id'] === 0){
@@ -59,8 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 //        }
         Invoice::updateAll($new_invoice);
 
-//        var_dump($new_invoice);
-//        die();
+        var_dump($new_invoice);
+        die();
         $message = "Facture mis a jour";
         header("location:../view-invoice.php?invoice_id=".$new_invoice->getId()."&message=".$message."&error=".$error);
         die();

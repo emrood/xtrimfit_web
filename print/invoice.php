@@ -28,6 +28,7 @@ if (isset($_GET['invoice_id'])) {
     $invoice = Invoice::getById($_GET['invoice_id']);
     $customer = Customer::getById($invoice['customer_id']);
     $pricing = Pricing::getById($invoice['pricing_id']);
+    $price = number_format($invoice['price'], 2, '.', ',');
     $total = number_format($invoice['total'], 2, '.', ',');
     $from = date('d/m/Y', strtotime($invoice['from_date']));
     $to = date('d/m/Y', strtotime($invoice['to_date']));
