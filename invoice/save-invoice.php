@@ -60,8 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 //        }
         Invoice::updateAll($new_invoice);
 
-        var_dump($new_invoice);
-        die();
+//        var_dump($new_invoice);
+//        die();
         $message = "Facture mis a jour";
         header("location:../view-invoice.php?invoice_id=".$new_invoice->getId()."&message=".$message."&error=".$error);
         die();
