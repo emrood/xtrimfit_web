@@ -32,8 +32,8 @@ if (isset($_GET['invoice_id']) && !empty($_GET['invoice_id'])) {
     $rates = Rate::getRates();
 
     if ($_GET['invoice_id'] === 'new') {
-        $invoice = json_decode(json_encode(new Invoice(0, Invoice::invoice_num(1, 7, 'XS1-'), 1, 1, $pricings[0]['price'], 0, 0, 0, $pricings[0]['price'], 'Paid', date('Y-m-d'), date('Y-m-d'), date('Y-m-d'), '', date('Y-m-d H:i:s'), 2, 1)), true);
         $pricings = Pricing::getByType('session');
+        $invoice = json_decode(json_encode(new Invoice(0, Invoice::invoice_num(1, 7, 'XS1-'), 1, 1, $pricings[0]['price'], 0, 0, 0, $pricings[0]['price'], 'Paid', date('Y-m-d'), date('Y-m-d'), date('Y-m-d'), '', date('Y-m-d H:i:s'), 2, 1)), true);
     } else {
         $invoice = Invoice::getById($_GET['invoice_id']);
         if($invoice['from_date'] === $invoice['to_date']){

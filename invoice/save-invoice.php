@@ -14,7 +14,7 @@ $message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 //    var_dump($_POST);
-//    die();
+////    die();
 
     $temp_total = (double) $_POST['price'] + (double) $_POST['fees'];
 
@@ -39,9 +39,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_POST['status'] = 'Paid';
         $_POST['from_date'] = date('Y-m-d');
         $_POST['to_date'] = date('Y-m-d');
-        $_POST['pricing_id'] = 1;
-        $_POST['price'] = Pricing::getById(1)['price'];
+//        $_POST['pricing_id'] = 1;
+        $_POST['price'] = Pricing::getById($_POST['pricing_id'])['price'];
 
+        $temp_total = (double) $_POST['price'] + (double) $_POST['fees'];
+
+        if((double) $_POST['discount_percentage'] > 0){
+//        $temp_total = $temp_total - ($temp_total * ((double) $_POST['discount_percentage']) / 100);
+            $temp_total = $temp_total - $_POST['discount_percentage'];
+        }
+
+        if((double) $_POST['taxe_percentage'] > 0){
+            $temp_total = $temp_total + ($temp_total * ((double) $_POST['taxe_percentage']) / 100);
+        }
+
+        $_POST['total'] = (double) $temp_total;
 
 
         $new_invoice = Invoice::convertRowToObject($_POST);
