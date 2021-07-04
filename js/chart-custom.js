@@ -5969,11 +5969,13 @@ if (jQuery("#home-chart-02").length) {
         {
         	var profits = [];
         	var months = [];
+        	var expenses = [];
 
             for (var event in data) {
                 // console.log(event, data[event]);
                 profits.push(data[event].total);
                 months.push(data[event].paid_month);
+                expenses.push(0);
             }
 
             console.log('END_MONTH', months);
@@ -5986,7 +5988,7 @@ if (jQuery("#home-chart-02").length) {
                     data: profits
                 }, {
                     name: "Depenses",
-                    data: [0, 0, 0, 0, 0]
+                    data: expenses
                 }],
                 chart: {
                     type: "bar",
