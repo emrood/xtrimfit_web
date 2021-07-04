@@ -51,6 +51,7 @@ if(isset($_SESSION) && isset($_SESSION['user'])) {
     <link rel="stylesheet" href="css/style.css">
     <!-- Responsive CSS -->
     <link rel="stylesheet" href="css/responsive.css">
+    <script src="js/echarts.js"></script>
 
     <?php if(isset($_SESSION) && $_SESSION['active'] === 'calendar'): ?>
         <!-- Full calendar -->

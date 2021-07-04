@@ -21,7 +21,7 @@ if (!isset($_SESSION['user'])) {
 $_SESSION['active'] = 'list-invoice';
 
 $text = null;
-$limit = 50;
+$limit = 200;
 $offset = 0;
 $from = date('Y-m-d', strtotime('-1 month', strtotime(date('Y-m-d'))));
 $to = date('Y-m-d');
@@ -52,8 +52,9 @@ $invoices = Invoice::filter($text, $limit, $offset, $from, $to);
 $totals = [];
 
 if ($_SESSION['user']['role'] === 'Administrateur') {
-    $totals['unpaid'] = Invoice::getTotalUnpaid()['total'];
-    $totals['pending'] = Invoice::getTotalPending()['total'];
+    $totals['unpaid'] = Invoice::getTotalUnpaid($from, $to, 'interval')['total'];
+    $totals['pending'] = Invoice::getTotalPending($from, $to, 'interval')['total'];
+    $totals['paid'] = Invoice::getTotalPaid($from, $to, 'interval')['total'];
 }
 
 
@@ -104,6 +105,12 @@ include("parts/head.php");
 
                             <?php if ($_SESSION['user']['role'] === 'Administrateur'): ?>
                                 <div class="pull-right" style="font-size: 1em !important;">
+                                    <button type="button" style="font-size: 1.2em !important;"
+                                            class="btn mb-1 btn-outline-success">
+                                        Payés <span
+                                                class="badge badge-success ml-2"><?= '$ ' . number_format($totals['paid'], 2, '.', ',') ?></span>
+                                    </button>
+
                                     <button type="button" style="font-size: 1.2em !important;"
                                             class="btn mb-1 btn-outline-primary">
                                         A recevoir <span

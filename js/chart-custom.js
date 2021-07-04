@@ -11,6 +11,8 @@
 		})
 	})
 }(jQuery);
+
+
 var options = {
 	chart: {
 		height: 80,
@@ -5950,50 +5952,127 @@ if (jQuery("#home-chart-01").length) {
 	(chart = new ApexCharts(document.querySelector("#home-chart-01"), options)).render()
 }
 if (jQuery("#home-chart-02").length) {
-	options = {
-		series: [{
-			name: "Net Profit",
-			data: [0, 0, 0, 0, 0]
-		}, {
-			name: "Revenue",
-			data: [0, 0, 0, 0, 0]
-		}],
-		chart: {
-			type: "bar",
-			height: 350
-		},
-		colors: ["#827af3", "#6ce6f4"],
-		plotOptions: {
-			bar: {
-				horizontal: !1,
-				columnWidth: "55%",
-				endingShape: "rounded"
-			}
-		},
-		dataLabels: {
-			enabled: !1
-		},
-		stroke: {
-			show: !0,
-			width: 2,
-			colors: ["transparent"]
-		},
-		xaxis: {
-			categories: [ "Jun", "Jul", "Aug", "Sep", "Oct"]
-		},
-		yaxis: {},
-		fill: {
-			opacity: 1
-		},
-		tooltip: {
-			y: {
-				formatter: function(e) {
-					return "$ " + e + " thousands"
-				}
-			}
-		}
-	};
-	(chart = new ApexCharts(document.querySelector("#home-chart-02"), options)).render()
+
+    // import('/js/constants.js');
+    var evts = [];
+    const Http = new XMLHttpRequest();
+    const url = 'http://xtrimfit.com:82/api/stats';
+    Http.open("GET", url);
+    Http.send();
+    Http.onreadystatechange = (e) => {
+        // console.log(Http.responseText);
+        let data = JSON.parse(Http.responseText);
+        // console.log('NUMBER_OF _STATS', Object.keys(data).length);
+        // console.log('DATAS', data);
+
+        if (Http.readyState === 4 && Http.status === 200)
+        {
+        	var profits = [];
+        	var months = [];
+
+            for (var event in data) {
+                // console.log(event, data[event]);
+                profits.push(data[event].total);
+                months.push(data[event].paid_month);
+            }
+
+            console.log('END_MONTH', months);
+            console.log('END_MTOTAL', profits);
+
+
+            options = {
+                series: [{
+                    name: "Chiffre d'affaire",
+                    data: profits
+                }, {
+                    name: "Depenses",
+                    data: [0, 0, 0, 0, 0]
+                }],
+                chart: {
+                    type: "bar",
+                    height: 350
+                },
+                colors: ["#827af3", "#6ce6f4"],
+                plotOptions: {
+                    bar: {
+                        horizontal: !1,
+                        columnWidth: "55%",
+                        endingShape: "rounded"
+                    }
+                },
+                dataLabels: {
+                    enabled: !1
+                },
+                stroke: {
+                    show: !0,
+                    width: 2,
+                    colors: ["transparent"]
+                },
+                xaxis: {
+                    categories: months
+                },
+                yaxis: {},
+                fill: {
+                    opacity: 1
+                },
+                tooltip: {
+                    y: {
+                        formatter: function(e) {
+                            return "$ " + e + ""
+                        }
+                    }
+                }
+            };
+            (chart = new ApexCharts(document.querySelector("#home-chart-02"), options)).render()
+
+        }
+    }
+
+
+	// options = {
+	// 	series: [{
+	// 		name: "Net Profit",
+	// 		data: [0, 0, 0, 0, 0]
+	// 	}, {
+	// 		name: "Revenue",
+	// 		data: [0, 0, 0, 0, 0]
+	// 	}],
+	// 	chart: {
+	// 		type: "bar",
+	// 		height: 350
+	// 	},
+	// 	colors: ["#827af3", "#6ce6f4"],
+	// 	plotOptions: {
+	// 		bar: {
+	// 			horizontal: !1,
+	// 			columnWidth: "55%",
+	// 			endingShape: "rounded"
+	// 		}
+	// 	},
+	// 	dataLabels: {
+	// 		enabled: !1
+	// 	},
+	// 	stroke: {
+	// 		show: !0,
+	// 		width: 2,
+	// 		colors: ["transparent"]
+	// 	},
+	// 	xaxis: {
+	// 		categories: [ "Jun", "Jul", "Aug", "Sep", "Oct"]
+	// 	},
+	// 	yaxis: {},
+	// 	fill: {
+	// 		opacity: 1
+	// 	},
+	// 	tooltip: {
+	// 		y: {
+	// 			formatter: function(e) {
+	// 				return "$ " + e + " thousands"
+	// 			}
+	// 		}
+	// 	}
+	// };
+	// (chart = new ApexCharts(document.querySelector("#home-chart-02"), options)).render()
 }
 if (jQuery("#home-chart-03").length) {
 	options = {

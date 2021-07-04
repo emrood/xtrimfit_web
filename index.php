@@ -30,7 +30,20 @@ $user_check = $_SESSION['user_id'];
 $_SESSION['active'] = 'index';
 
 
-$total_paid = Invoice::getTotalPaid(date('Y-m-d'))['total'];
+$from =  date('Y-m-d', strtotime('-1 month', strtotime(date('Y-m-d'))));
+$to = date('Y-m-d');
+
+if (isset($_GET['from_date'])) {
+    $from = $_GET['from_date'];
+}
+
+if (isset($_GET['to_date'])) {
+    $to = $_GET['to_date'];
+}
+
+
+
+$total_paid = Invoice::getTotalPaid($from, $to, 'interval')['total'];
 $rates = Rate::getRates();
 
 
@@ -483,6 +496,7 @@ include("parts/footer.php");
 <script src="js/chart-custom.js"></script>
 <!-- Custom JavaScript -->
 <script src="js/custom.js"></script>
+<script src="js/filter.js"></script>
 
 </body>
 </html>

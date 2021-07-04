@@ -76,6 +76,8 @@ class Database
             $q = $finalQuery;
         }
 
+//        var_dump($q.' <br/>');
+
 
         $results = $this->connection->query($q);
 

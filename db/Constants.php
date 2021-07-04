@@ -11,8 +11,8 @@ class Constants
 
     private static $url = 'localhost';
     private static $user_name = 'app';
-//    private static $password = 'P@$$W0rd'; // Local
-    private static $password = 'Xtrim1Fit2$_'; // Prod
+    private static $password = 'P@$$W0rd'; // Local
+//    private static $password = 'Xtrim1Fit2$_'; // Prod
     private static  $db_name = 'xtrim';
 
     private static $roles = ['Administrateur', 'Agent'];
