@@ -130,11 +130,11 @@ include("parts/head.php");
                             <div class="table-responsive">
                                 <div class="row justify-content-between">
                                     <div class="col-sm-12 col-md-6">
-                                        <div id="user_list_datatable_info" class="dataTables_filter">
+                                        <div id="user_list_datatable_info" style="margin-bottom: 10px;" class="dataTables_filter">
                                             <form class="mr-3 position-relative" action="" method="get">
                                                 <div class="form-group mb-0" style="display: flex;">
                                                     <input type="search" name="query" class="form-control"
-                                                           id="exampleInputSearch" placeholder="Search"
+                                                           id="exampleInputSearch" placeholder="Client name..."
                                                            aria-controls="user-list-table">
 
                                                     <button class="btn btn-outline-dark" style="margin-left: 4px;"><i class="ri-search-2-line"></i></button>
@@ -285,5 +285,24 @@ include("parts/footer.php");
 <script src="js/custom.js"></script>
 <script src="js/alert.js"></script>
 <script src="js/filter.js"></script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/jszip-2.5.0/dt-1.10.25/b-1.7.1/b-html5-1.7.1/b-print-1.7.1/r-2.2.9/sb-1.1.0/sp-1.3.0/datatables.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        // $('#user-list-table').DataTable();
+
+        $('#user-list-table').DataTable( {
+            dom: 'Bfrtip',
+            buttons: [
+                'copy', 'csv', 'excel', 'pdf', 'print'
+            ]
+        } );
+    });
+
+
+</script>
 </body>
 </html>

@@ -140,7 +140,7 @@ class Invoice implements \JsonSerializable
 
 
         if ($text !== null && !empty($text)) {
-            $query = 'SELECT * FROM invoices WHERE invoice_number lIKE "%' . $text . '%" ORDER BY id DESC LIMIT ' . $limit . ' OFFSET ' . $offset;
+            $query = 'SELECT invoices.* FROM invoices JOIN customers ON customers.id = invoices.customer_id WHERE invoices.invoice_number lIKE "%' . $text . '%" OR customers.first_name lIKE "%' . $text . '%" OR customers.last_name lIKE "%' . $text . '%" OR invoices.status lIKE "%' . $text . '%" ORDER BY id DESC LIMIT ' . $limit . ' OFFSET ' . $offset;
         }else{
             $query = 'SELECT * FROM invoices WHERE DATE(created_at) >= DATE("'.$from.' 00:00:00") AND DATE(created_at) <= DATE("'.$to.' 23:59:59") ORDER BY id DESC LIMIT ' . $l . ' OFFSET '.$o;
         }
