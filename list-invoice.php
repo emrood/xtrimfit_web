@@ -21,7 +21,7 @@ if (!isset($_SESSION['user'])) {
 $_SESSION['active'] = 'list-invoice';
 
 $text = null;
-$limit = 200;
+$limit = 300;
 $offset = 0;
 $from = date('Y-m-d', strtotime('-1 month', strtotime(date('Y-m-d'))));
 $to = date('Y-m-d');
@@ -216,28 +216,6 @@ include("parts/head.php");
                                 </table>
                             </div>
 
-                            <?php if ($pages > 1): ?>
-                                <div class="row justify-content-between mt-3">
-                                    <div id="user-list-page-info" class="col-md-6">
-                                        <span>Showing 1 to <?= $limit ?> of <?= $count ?> entries</span>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <nav aria-label="Page navigation example">
-                                            <ul class="pagination justify-content-end mb-0">
-                                                <li class="page-item disabled">
-                                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
-                                                </li>
-                                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                                                <li class="page-item">
-                                                    <a class="page-link" href="#">Suivant</a>
-                                                </li>
-                                            </ul>
-                                        </nav>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
